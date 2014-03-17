@@ -100,6 +100,15 @@ can be done within a file using `%s/\\n/\r/g`.
 
 Stack Details
 =============
+If you provided a domain name that is associated with your Rackspace Cloud
+account and chose to create DNS records, you will be able to navigate to the
+provided domain name in your browser. If DNS has not been configured yet,
+please refer to this
+[documentation](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file)
+on how to setup your hosts file to allow your browser to access your deployment
+via domain name. Please note: some applications like WordPress may not work
+properly unless accessed via domain name.
+
 A system user of 'wp_user' or the username you provided as a part of your
 deployment has been created. This user can be used to SCP, SFTP, or FTP
 content over to your site. We recommend using SCP or any encrypted protocol.
