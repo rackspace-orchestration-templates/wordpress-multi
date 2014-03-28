@@ -221,7 +221,7 @@ resources:
           :git => 'https://github.com/brint/rax-wordpress-cookbook'
         cookbook 'cron',
           :git => 'https://github.com/opscode-cookbooks/cron',
-          :ref => '9545e3449b68903a024e8600877fedeeccb58366'
+          :ref => '8007fc9ef6083e04554d729b4ffaef4e7ca81d7a'
       node:
         apache:
           listen_ports: [8080]
