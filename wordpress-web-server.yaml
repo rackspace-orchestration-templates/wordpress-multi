@@ -219,6 +219,9 @@ resources:
           :git => 'https://github.com/dgivens/chef-lsyncd/'
         cookbook 'rax-wordpress',
           :git => 'https://github.com/brint/rax-wordpress-cookbook'
+        cookbook 'cron',
+          :git => 'https://github.com/opscode-cookbooks/cron',
+          :ref => '9545e3449b68903a024e8600877fedeeccb58366'
       node:
         apache:
           listen_ports: [8080]
