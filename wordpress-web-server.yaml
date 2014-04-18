@@ -155,7 +155,7 @@ parameters:
   kitchen:
     description: URL for the kitchen to use
     type: string
-    default: https://github.com/andrew-plunk/wordpress-multi
+    default: https://github.com/rackspace-orchestration-templates/wordpress-multi
 
   chef_version:
     description: Version of chef client to use
