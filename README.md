@@ -82,6 +82,11 @@ the `-P` flag to specify a custom parameter.
   none)
 * `ssh_sync_keypair_name`: Name of the SSH key pair to register with nova for
   lsyncd purposes (Default: none)
+* `kitchen`: URL for the kitchen to clone with git. The Chef Solo run will copy
+  all files in this repo into the kitchen for the chef run. (Default:
+  https://github.com/rackspace-orchestration-templates/wordpress-multi)
+* `chef_version`: Chef client version to install for the chef run.  (Default:
+  11.12.2)
 
 Outputs
 =======
