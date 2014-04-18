@@ -1,0 +1,16 @@
+{
+  "sources": {
+    "iptables-ng": {
+      "path": "."
+    },
+    "minitest-handler": {
+      "locked_version": "0.2.1"
+    },
+    "iptables_ng_test": {
+      "path": "./test/cookbooks/iptables_ng_test"
+    },
+    "chef_handler": {
+      "locked_version": "1.1.4"
+    }
+  }
+}

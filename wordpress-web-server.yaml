@@ -151,6 +151,17 @@ parameters:
   wp_secure_auth:
     type: string
 
+  # Chef configuration options
+  kitchen:
+    description: URL for the kitchen to use
+    type: string
+    default: https://github.com/andrew-plunk/wordpress-multi
+
+  chef_version:
+    description: Version of chef client to use
+    type: string
+    default: 11.12.2
+
 resources:
 
   wp_web_server:
@@ -167,17 +178,12 @@ resources:
       username: root
       private_key: { get_param: ssh_private_key }
       host: { get_attr: [wp_web_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'build-essential'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         run_list: ["recipe[apt]",
                    "recipe[build-essential]"]
+
 
   wp_web_server_setup:
     type: "OS::Heat::ChefSolo"
@@ -186,42 +192,8 @@ resources:
       username: root
       private_key: { get_param: ssh_private_key }
       host: { get_attr: [wp_web_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'apache2',
-          :git => 'https://github.com/opscode-cookbooks/apache2.git'
-        cookbook 'build-essential'
-        cookbook 'firewall'
-        cookbook 'memcached'
-        cookbook 'mysql',
-          :git => 'https://github.com/opscode-cookbooks/mysql'
-        cookbook 'wordpress',
-          :git => 'https://github.com/opscode-cookbooks/wordpress'
-        cookbook 'php',
-          :git => 'https://github.com/opscode-cookbooks/php'
-
-        cookbook 'sysctl',
-          :git => 'https://github.com/spheromak/sysctl-cookbook'
-        cookbook 'vsftpd',
-          :git => 'https://github.com/cwjohnston/chef-vsftpd'
-        cookbook 'monit',
-          :git => 'https://github.com/apsoto/monit'
-        cookbook 'hollandbackup',
-          :git => 'https://github.com/brint/hollandbackup'
-        cookbook 'varnish',
-          :git => 'https://github.com/opscode-cookbooks/varnish'
-        cookbook 'lsyncd',
-          :git => 'https://github.com/dgivens/chef-lsyncd/'
-        cookbook 'rax-wordpress',
-          :git => 'https://github.com/brint/rax-wordpress-cookbook'
-        cookbook 'cron',
-          :git => 'https://github.com/opscode-cookbooks/cron',
-          :ref => '8007fc9ef6083e04554d729b4ffaef4e7ca81d7a'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         apache:
           listen_ports: [8080]

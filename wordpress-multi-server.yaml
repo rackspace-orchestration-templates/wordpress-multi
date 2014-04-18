@@ -223,6 +223,17 @@ parameters:
     - allowed_pattern: "^(.){1,64}$"
       description: "Must be shorter than 64 characters or fewer."
 
+  # Chef configuration options
+  kitchen:
+    description: URL for the kitchen to use
+    type: string
+    default: https://github.com/andrew-plunk/wordpress-multi
+
+  chef_version:
+    description: Version of chef client to use
+    type: string
+    default: 11.12.2
+
 resources:
   # Random password generation
   database_password:
@@ -331,7 +342,7 @@ resources:
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
-        type: https://raw.github.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
+        type: https://raw.github.com/andrew-plunk/wordpress-multi/master/wordpress-web-server.yaml
         properties:
           wp_web_server_hostname: { get_param: wp_web_server_hostnames }
           image: { get_param: image }
@@ -355,6 +366,8 @@ resources:
           ssh_keypair_name: { get_param: ssh_keypair_name }
           ssh_private_key: { get_attr: [ssh_key, private_key] }
           ssh_public_key: { get_attr: [ssh_key, public_key] }
+          kitchen: { get_param: kitchen }
+          chef_version: { get_param: chef_version }
 
   # Chef resources
   bootstrap_database_server:
@@ -363,14 +376,8 @@ resources:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
       host: { get_attr: [database_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'build-essential'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         run_list: ["recipe[apt]",
                    "recipe[build-essential]"]
@@ -382,14 +389,8 @@ resources:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
       host: { get_attr: [wp_master_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'build-essential'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         run_list: ["recipe[apt]",
                    "recipe[build-essential]"]
@@ -402,42 +403,8 @@ resources:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
       host: { get_attr: [database_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'apache2',
-          :git => 'https://github.com/opscode-cookbooks/apache2.git'
-        cookbook 'build-essential'
-        cookbook 'firewall'
-        cookbook 'memcached'
-        cookbook 'mysql',
-          :git => 'https://github.com/opscode-cookbooks/mysql'
-        cookbook 'wordpress',
-          :git => 'https://github.com/opscode-cookbooks/wordpress'
-        cookbook 'php',
-          :git => 'https://github.com/opscode-cookbooks/php'
-
-        cookbook 'sysctl',
-          :git => 'https://github.com/spheromak/sysctl-cookbook'
-        cookbook 'vsftpd',
-          :git => 'https://github.com/cwjohnston/chef-vsftpd'
-        cookbook 'monit',
-          :git => 'https://github.com/apsoto/monit'
-        cookbook 'hollandbackup',
-          :git => 'https://github.com/brint/hollandbackup'
-        cookbook 'varnish',
-          :git => 'https://github.com/opscode-cookbooks/varnish'
-        cookbook 'lsyncd',
-          :git => 'https://github.com/dgivens/chef-lsyncd/'
-        cookbook 'rax-wordpress',
-          :git => 'https://github.com/brint/rax-wordpress-cookbook'
-        cookbook 'cron',
-          :git => 'https://github.com/opscode-cookbooks/cron',
-          :ref => '8007fc9ef6083e04554d729b4ffaef4e7ca81d7a'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         hollandbackup:
           main:
@@ -473,39 +440,8 @@ resources:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
       host: { get_attr: [wp_master_server, accessIPv4] }
-      Berksfile: |
-        #!/usr/bin/env ruby
-        # ^syntax detection
-
-        site :opscode
-
-        cookbook 'apt'
-        cookbook 'apache2',
-          :git => 'https://github.com/opscode-cookbooks/apache2.git'
-        cookbook 'build-essential'
-        cookbook 'firewall'
-        cookbook 'memcached'
-        cookbook 'mysql',
-          :git => 'https://github.com/opscode-cookbooks/mysql'
-        cookbook 'wordpress',
-          :git => 'https://github.com/opscode-cookbooks/wordpress'
-        cookbook 'php',
-          :git => 'https://github.com/opscode-cookbooks/php'
-
-        cookbook 'sysctl',
-          :git => 'https://github.com/spheromak/sysctl-cookbook'
-        cookbook 'vsftpd',
-          :git => 'https://github.com/cwjohnston/chef-vsftpd'
-        cookbook 'monit',
-          :git => 'https://github.com/apsoto/monit'
-        cookbook 'hollandbackup',
-          :git => 'https://github.com/brint/hollandbackup'
-        cookbook 'varnish',
-          :git => 'https://github.com/opscode-cookbooks/varnish'
-        cookbook 'lsyncd',
-          :git => 'https://github.com/dgivens/chef-lsyncd/'
-        cookbook 'rax-wordpress',
-          :git => 'https://github.com/brint/rax-wordpress-cookbook'
+      kitchen: { get_param: kitchen }
+      chef_version: { get_param: chef_version }
       node:
         apache:
           listen_ports: [8080]
@@ -565,6 +501,9 @@ resources:
             admin_user: { get_param: username }
             admin_pass: { get_attr: [database_password, value] }
         run_list: ["recipe[apt]",
+                   "recipe[build-essential]",
+                   "recipe[mysql::client]",
+                   "recipe[mysql-chef_gem]",
                    "recipe[rax-wordpress::apache-prep]",
                    "recipe[sysctl::attribute_driver]",
                    "recipe[rax-wordpress::x509]",
