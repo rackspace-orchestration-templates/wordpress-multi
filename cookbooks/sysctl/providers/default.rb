@@ -35,18 +35,18 @@ end
 # TODO: Make this work on other platforms better
 def load_current_resource
   # quick & dirty os detection
-  @sysctl_args = case node[:os]
-                 when 'GNU/Linux', 'Linux', 'linux'
-                  '-n -e'
-                 else
-                   '-n'
-                 end
+  @sysctl_args = case node.os
+  when 'GNU/Linux', 'Linux', 'linux'
+    '-n -e'
+  else
+    '-n'
+  end
 
   # clean up value whitespace when its a string
   @new_resource.value.strip!  if @new_resource.value.class == String
 
   # find current value
-  _status, @current_value, _error_message = output_of_command(
+  status, @current_value, error_message = output_of_command(
       "#{@sysctl} #{@sysctl_args} #{@new_resource.name}", ignore_failure: true)
 
   Chef::Log.info "#{new_resource.name} -> #{@current_value} := #{new_resource.value}"
@@ -54,7 +54,7 @@ end
 
 # save to node obj if we were asked to
 def save_to_node
-  node.set[:sysctl][:values][@new_resource.name]  = @new_resource.value if @new_resource.save == true
+  node.set[:sysctl][:values]["#{@new_resource.name}"]  = @new_resource.value if @new_resource.save == true
 end
 
 # ensure running state

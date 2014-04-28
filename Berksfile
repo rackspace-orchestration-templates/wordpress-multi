@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # ^syntax detection
 
-site :opscode
+source "http://api.berkshelf.com"
 
 cookbook 'apt'
 cookbook 'apache2',
@@ -16,10 +16,11 @@ cookbook 'wordpress',
 cookbook 'php',
   :git => 'https://github.com/opscode-cookbooks/php'
 cookbook 'sysctl',
-  :git => 'https://github.com/spheromak/sysctl-cookbook'
-  #:ref => '796678a25e1c83f7f5810c1b507acaedd48403c9'
+  :git => 'https://github.com/spheromak/sysctl-cookbook',
+  :ref => '796678a25e1c83f7f5810c1b507acaedd48403c9'
 cookbook 'vsftpd',
-  :git => 'https://github.com/cwjohnston/chef-vsftpd'
+  :git => 'https://github.com/optiflows-cookbooks/vsftpd',
+  :ref => '813744f1d184bdb79c68737a12ed5221825b925c'
 cookbook 'monit',
   :git => 'https://github.com/apsoto/monit'
 cookbook 'hollandbackup',

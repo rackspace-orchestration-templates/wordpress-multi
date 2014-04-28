@@ -18,14 +18,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Which IP versions to manage rules for
+default['iptables-ng']['enabled_ip_versions'] = [4, 6]
+
+# Which tables to manage:
+# When using containered setup (OpenVZ, Docker, LXC) it might might be
+# necessary to remove the "nat" and "raw" tables.
+default['iptables-ng']['enabled_tables'] = %w{nat filter mangle raw}
+
 # Packages to install
 default['iptables-ng']['packages'] = case node['platform_family']
 when 'debian'
-  %w{iptables iptables-persistent}
+  %w(iptables iptables-persistent)
 when 'rhel'
-  %w{iptables iptables-ipv6}
+  %w(iptables iptables-ipv6)
 else
-  %w{iptables}
+  %w(iptables)
 end
 
 # Where the rules are stored and how they are executed
@@ -50,7 +58,6 @@ when 'ubuntu'
   default['iptables-ng']['service_ipv6'] = 'iptables-persistent'
   default['iptables-ng']['script_ipv4'] = '/etc/iptables/rules.v4'
   default['iptables-ng']['script_ipv6'] = '/etc/iptables/rules.v6'
-
 
 when 'redhat', 'centos', 'scientific', 'amazon', 'fedora'
   default['iptables-ng']['service_ipv4'] = 'iptables'

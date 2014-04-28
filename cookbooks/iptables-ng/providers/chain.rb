@@ -19,20 +19,20 @@
 #
 
 action :create do
-  edit_chain(:create)
+  new_resource.updated_by_last_action(true) if edit_chain(:create)
 end
 
 action :create_if_missing do
-  edit_chain(:create_if_missing)
+  new_resource.updated_by_last_action(true) if edit_chain(:create_if_missing)
 end
 
 action :delete do
-  edit_chain(:delete)
+  new_resource.updated_by_last_action(true) if edit_chain(:delete)
 end
 
 def edit_chain(exec_action)
   # only default chains can have a policy
-  if %w{INPUT OUTPUT FORWARD PREROUTING POSTROUTING}.include? new_resource.chain
+  if %w(INPUT OUTPUT FORWARD PREROUTING POSTROUTING).include? new_resource.chain
     policy = new_resource.policy
   else
     policy = '- [0:0]'
@@ -57,5 +57,5 @@ def edit_chain(exec_action)
     action   exec_action
   end
 
-  new_resource.updated_by_last_action(true) if r.updated_by_last_action?
+  r.updated_by_last_action?
 end

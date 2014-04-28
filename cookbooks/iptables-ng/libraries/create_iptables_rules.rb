@@ -37,7 +37,10 @@ module Iptables
         rule = ::File.basename(filename)
 
         # ipv6 doesn't support nat
-        next if table == 'nat' and ip_version == 6
+        next if table == 'nat' && ip_version == 6
+
+        # Skip deactivated tables
+        next if not node['iptables-ng']['enabled_tables'].include?(table)
 
         # Create hashes unless they already exist, and add the rule
         rules[table] ||= {}
@@ -50,8 +53,15 @@ module Iptables
         iptables_restore << "*#{table}\n"
 
         # Get default policies and rules for this chain
-        default_policies = chains.inject({}) {|new_chain, rule| new_chain[rule[0]] = rule[1].select{|k, v| k == 'default'}; new_chain }
-        all_chain_rules  = chains.inject({}) {|new_chain, rule| new_chain[rule[0]] = rule[1].reject{|k, v| k == 'default'}; new_chain }
+        default_policies = chains.reduce({}) do |new_chain, rule|
+          new_chain[rule[0]] = rule[1].select { |k, v| k == 'default' }
+          new_chain
+        end
+
+        all_chain_rules  = chains.reduce({}) do |new_chain, rule|
+          new_chain[rule[0]] = rule[1].reject { |k, v| k == 'default' }
+          new_chain
+        end
 
         # Apply default policies first
         default_policies.each do |chain, policy|

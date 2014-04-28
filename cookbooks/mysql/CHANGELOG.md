@@ -3,6 +3,28 @@ mysql Cookbook CHANGELOG
 This file is used to list changes made in each version of the mysql cookbook.
 
 
+v5.2.2 (2014-04-24)
+-------------------
+- [COOK-4564] - Using positive tests for datadir move
+
+
+v5.2.0 (2014-04-22)
+-------------------
+- [COOK-4551] - power grants.sql from resource parameters
+
+
+v5.1.12 (2014-04-21)
+--------------------
+- [COOK-4554] - Support for Debian Sid
+
+
+v5.1.10 (2014-04-21)
+--------------------
+- [COOK-4565] Support for Ubuntu 14.04
+- [COOK-4565] Adding Specs and TK platform
+- Removing non-LTS 13.10 specs and TK platform
+
+
 v5.1.8 (2014-04-12)
 -------------------
 Adding Ubuntu 13.04 to Platforminfo

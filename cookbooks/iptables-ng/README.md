@@ -1,5 +1,7 @@
 # iptables-ng Cookbook
 
+[![Build Status](https://travis-ci.org/chr4-cookbooks/iptables-ng.svg?branch=master)](https://travis-ci.org/chr4-cookbooks/iptables-ng)
+
 This cookbook maintains and installs iptables and ip6tables rules, trying to keep as close to the way the used distribution maintains their rules.
 
 Contrary to other iptables cookbooks, this cookbook installs iptables and maintains rules using the distributions default configuration files and services (for Debian and Ubuntu, iptables-persistent is used). If the distribution has no service for iptables, it falls back to iptables-restore.
@@ -32,11 +34,19 @@ depends 'iptables-ng'
 While iptables-ng tries to automatically determine the correct settings and defaults for your distribution, it might be necessary to adapt them in certian cases. You can configure the behaviour of iptables-ng using the following attributes:
 
 ```ruby
+# The ip versions to manage iptables for
+node['iptables-ng']['enabled_ip_versions'] = [4, 6]
+
+# Which tables to manage:
+# When using containered setup (OpenVZ, Docker, LXC) it might might be
+# necessary to remove the "nat" and "raw" tables.
+node['iptables-ng']['enabled_tables'] = %w{nat filter mangle raw}
+
 # An array of packages to install.
 # This should install iptables and ip6tables,
 # as well as a system service that takes care of reloading the rules
 # On Debian and Ubuntu, iptables-persistent is used by default.
-node['iptables-ng']['packages'] = [ 'iptables' ]
+node['iptables-ng']['packages'] = ['iptables']
 
 # The name of the service that will be used to restart iptables
 # If this is left empty, iptables-ng will fall back to iptables-restore
@@ -99,8 +109,9 @@ To allow only SSH for incoming connections, add this to your node configuration
         "filter": {
           "INPUT": {
             "default": "DROP [0:0]",
-            "ssh":
+            "ssh": {
               "rule": "--protocol tcp --dport 22 --match state --state NEW --jump ACCEPT"
+            }
           }
         }
       }
@@ -115,9 +126,10 @@ To allow only SSH for incoming connections, add this to your node configuration
 In case you need a rule for one specific ip version, you can set the "ip_version" attribute.
 
 ```json
-"ssh":
-  "rule": "--protocol tcp --source 1.2.3.4 --dport 22 --match state --state NEW --jump ACCEPT"
+"ssh": {
+  "rule": "--protocol tcp --source 1.2.3.4 --dport 22 --match state --state NEW --jump ACCEPT",
   "ip_version": 4
+}
 ```
 
 ## install
@@ -134,7 +146,7 @@ It's recommended to configure iptables-ng using LWRPs in your (wrapper) cookbook
 All providers take care that iptables is installed (they include the install recipe before running), so you can just use them without worrying whether everything is installed correctly.
 
 
-## iptables_ng_chain
+## iptables\_ng\_chain
 
 This provider creates chains and adds their default policies.
 
@@ -149,7 +161,7 @@ end
 Example: Create a custom chain:
 
 ```ruby
-iptables_ng_chain 'MYCHAIN' do
+iptables_ng_chain 'MYCHAIN'
 ```
 
 The following additional attributes are supported:
@@ -158,14 +170,15 @@ The following additional attributes are supported:
 iptables_ng_chain 'name' do
   chain  'INPUT'       # The chain to set the policy for (name_attribute)
   table  'filter'      # The table to use (defaults to 'filter')
-  policy 'DROP [0:0]'  # The policy to use (required)
+  policy 'DROP [0:0]'  # The policy to use (defaults to 'ACCEPT [0:0]' for
+                       # build-in chains, to '- [0:0]' for custom ones
 
   action :create       # Supported actions: :create, :create_if_missing, :delete
                        # Default action: :create
 end
 ```
 
-## iptables_ng_rule
+## iptables\_ng\_rule
 
 This provider adds iptables rules
 
@@ -185,7 +198,7 @@ iptables_ng_rule 'custom' do
   chain      'INPUT'      # Chain to use. Defaults to 'INPUT'
   table      'filter'     # Table to use. Defaults to 'filter'
   ip_version 4            # Integer or Array of IP versions to create the rules for.
-                          # Defaults to [4, 6]
+                          # Defaults to node['iptables-ng']['enabled_ip_versions']
   rule       '-j ACCEPT'  # String or Array containing the rule(s). (Required)
 
   action :create          # Supported actions: :create, :create_if_missing, :delete
@@ -197,8 +210,8 @@ Example: Allow HTTP and HTTPS for a specific IP range only
 
 ```ruby
 iptables_ng_rule 'ssh' do
-  rule [ '--source 192.168.1.0/24 --protocol tcp --dport 80 --match state --state NEW --jump ACCEPT',
-         '--source 192.168.1.0/24 --protocol tcp --dport 443 --match state --state NEW --jump ACCEPT' ]
+  rule ['--source 192.168.1.0/24 --protocol tcp --dport 80 --match state --state NEW --jump ACCEPT',
+        '--source 192.168.1.0/24 --protocol tcp --dport 443 --match state --state NEW --jump ACCEPT']
 
   # As the source specified above is ipv4
   # This rule cannot be applied to ip6tables.
@@ -207,12 +220,20 @@ iptables_ng_rule 'ssh' do
 end
 ```
 
+
+# Known issues
+
+There are some issues with systemd support on Fedora systems. Also it might be required to install iptables-service on newer Fedora machines.
+Due to this issues, the tests for Fedora were removed until they are resolved.
+Furthermore, due to the lack of Opscode kitchen boxes, there are not tests for Archlinux.
+
+
 # Contributing
 
 You fixed a bug, or added a new feature? Yippie!
 
 1. Fork the repository on Github
-2. Create a named feature branch (like `add_component_x`)
+2. Create a named feature branch (like `add\_component\_x`)
 3. Write you change
 4. Write tests for your change (if applicable)
 5. Run the tests, ensuring they all pass

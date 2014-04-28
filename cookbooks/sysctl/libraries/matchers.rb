@@ -1,4 +1,3 @@
-# rubocop:disable AccessorMethodName
 if defined?(ChefSpec)
   def set_sysctl(sysctl)
     ChefSpec::Matchers::ResourceMatcher.new(:sysctl, :set, sysctl)

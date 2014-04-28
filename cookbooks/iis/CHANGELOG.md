@@ -3,6 +3,22 @@ IIS Cookbook CHANGELOG
 This file is used to list changes made in each version of the IIS cookbook.
 
 
+v2.1.2 (2014-04-23)
+-------------------
+- [COOK-4559] Remove invalid UTF-8 characters
+
+
+v2.1.0 (2014-03-25)
+-------------------
+[COOK-4426] -  feature order correction for proper installation
+[COOK-4428] -  Add IIS FTP Feature Installation
+
+
+v2.0.4 (2014-03-18)
+-------------------
+- [COOK-4420] Corrected incorrect feature names for mod_security
+
+
 v2.0.2 (2014-02-25)
 -------------------
 - [COOK-4108] - Add documentation for the 'bindings' attribute in 'iis_site' LWRP
