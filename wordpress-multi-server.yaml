@@ -420,7 +420,7 @@ resources:
           server_debian_password: { get_attr: [mysql_debian_password, value] }
           remove_test_database: true
           remove_anonymous_users: true
-          root_network_acl: "10.%"
+          root_network_acl: [ "10.%" ]
         rax:
           mysql:
         run_list: ["recipe[apt]",
