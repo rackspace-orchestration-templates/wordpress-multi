@@ -232,7 +232,7 @@ parameters:
   chef_version:
     description: Version of chef client to use
     type: string
-    default: 11.12.2
+    default: 11.12.4
 
 resources:
   # Random password generation
