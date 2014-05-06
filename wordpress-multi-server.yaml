@@ -342,7 +342,7 @@ resources:
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
-        type: https://raw.github.com/andrew-plunk/wordpress-multi/master/wordpress-web-server.yaml
+        type: https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
         properties:
           wp_web_server_hostname: { get_param: wp_web_server_hostnames }
           image: { get_param: image }
@@ -370,35 +370,9 @@ resources:
           chef_version: { get_param: chef_version }
 
   # Chef resources
-  bootstrap_database_server:
-    type: "OS::Heat::ChefSolo"
-    properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]"]
-
-  bootstrap_wp_master_server:
-    type: "OS::Heat::ChefSolo"
-    depends_on: database_server_setup
-    properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [wp_master_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]"]
-
-
   database_server_setup:
     type: "OS::Heat::ChefSolo"
-    depends_on: bootstrap_database_server
+    depends_on: database_server
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
@@ -424,6 +398,7 @@ resources:
         rax:
           mysql:
         run_list: ["recipe[apt]",
+                   "recipe[build-essential]",
                    "recipe[mysql::server]",
                    "recipe[rax-wordpress::mysql]",
                    "recipe[rax-wordpress::mysql-firewall]",
@@ -435,7 +410,7 @@ resources:
 
   wp_master_server_setup:
     type: "OS::Heat::ChefSolo"
-    depends_on: bootstrap_wp_master_server
+    depends_on: database_server_setup
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
@@ -474,7 +449,11 @@ resources:
         wordpress:
           version: { get_param: version }
           server_aliases: [{ get_param: domain }]
-          dir: "/var/www/vhosts/wordpress"
+          dir:
+            str_replace:
+              template: "/var/www/vhosts/%domain%"
+              params:
+                "%domain%": { get_param: domain }
           db:
             name: { get_param: database_name }
             user: { get_param: username }

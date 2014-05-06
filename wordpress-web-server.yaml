@@ -60,11 +60,6 @@ parameters:
     type: string
     default: 3.8.1
 
-  wp_install_directory:
-    description: Path to install and setup WordPress
-    type: string
-    default: "/var/www/vhosts/wordpress"
-
   # Optional Apache settings (SSL certs)
   # ssl_private_key:
   #  description: Private SSL key
@@ -172,22 +167,9 @@ resources:
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
 
-  bootstrap_wp_web_server:
-    type: "OS::Heat::ChefSolo"
-    properties:
-      username: root
-      private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]"]
-
-
   wp_web_server_setup:
     type: "OS::Heat::ChefSolo"
-    depends_on: bootstrap_wp_web_server
+    depends_on: wp_web_server
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
@@ -207,7 +189,11 @@ resources:
         wordpress:
           version: { get_param: version }
           server_aliases: [{ get_param: domain }]
-          dir: "/var/www/vhosts/wordpress"
+          dir:
+            str_replace:
+              template: "/var/www/vhosts/%domain%"
+              params:
+                "%domain%": { get_param: domain }
           db:
             name: { get_param: database_name }
             user: { get_param: username }
@@ -230,6 +216,7 @@ resources:
           varnish:
             master_backend: { get_param: varnish_master_backend }
         run_list: ["recipe[apt]",
+                   "recipe[build-essential]",
                    "recipe[rax-wordpress::apache-prep]",
                    "recipe[rax-wordpress::x509]",
                    "recipe[memcached]",
