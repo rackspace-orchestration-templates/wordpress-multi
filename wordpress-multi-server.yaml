@@ -352,7 +352,7 @@ resources:
           wp_logged_in: { get_attr: [wp_logged_in, value] }
           wp_nonce: { get_attr: [wp_nonce, value] }
           wp_secure_auth: { get_attr: [wp_secure_auth, value] }
-          ssh_keypair_name: { get_param: ssh_keypair_name }
+          ssh_keypair_name: { get_resource: ssh_key }
           ssh_private_key: { get_attr: [ssh_key, private_key] }
           ssh_public_key: { get_attr: [ssh_key, public_key] }
           kitchen: { get_param: kitchen }
