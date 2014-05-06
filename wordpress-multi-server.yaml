@@ -150,10 +150,10 @@ parameters:
   version:
     description: Version of WordPress to install
     type: string
-    default: 3.8.1
+    default: "3.9"
     constraints:
     - allowed_values:
-      - 3.8.1
+      - "3.9"
 
   # Optional Apache settings (SSL certs)
   # ssl_private_key:
@@ -207,21 +207,6 @@ parameters:
       description: |
         Must be shorter than 16 characters, this is due to MySQL's maximum
         username length.
-
-  # SSH Keypair naming
-  ssh_keypair_name:
-    description: "keypair name to register with Nova for the root SSH key"
-    type: string
-    constraints:
-    - allowed_pattern: "^(.){1,64}$"
-      description: "Must be shorter than 64 characters or fewer."
-
-  ssh_sync_keypair_name:
-    description: "Keypair name to register with Nova for the lsyncd keypair"
-    type: string
-    constraints:
-    - allowed_pattern: "^(.){1,64}$"
-      description: "Must be shorter than 64 characters or fewer."
 
   # Chef configuration options
   kitchen:
@@ -289,13 +274,17 @@ resources:
   sync_key:
     type: "OS::Nova::KeyPair"
     properties:
-      name: { get_param: ssh_sync_keypair_name }
+      name:
+        str_replace:
+          template: "%stack_id%-sync"
+          params:
+            "%stack_id%": { get_param: "OS::stack_id" }
       save_private_key: true
 
   ssh_key:
     type: "OS::Nova::KeyPair"
     properties:
-      name: { get_param: ssh_keypair_name }
+      name: { get_param: "OS::stack_id" }
       save_private_key: true
 
   # Server resources

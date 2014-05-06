@@ -31,8 +31,7 @@ Here is an example of how to deploy this template using the
 heat --os-username <OS-USERNAME> --os-password <OS-PASSWORD> --os-tenant-id \
   <TENANT-ID> --os-auth-url https://identity.api.rackspacecloud.com/v2.0/ \
   stack-create WordPress-Multi -f wordpress-multi-server.yaml \
-  -P server_hostname=my-site -P ssh_keypair_name=wp-stack \
-  -P ssh_sync_keypair_name=wp-stack-lsync
+  -P server_hostname=my-site -P domain=example.org
 ```
 
 * For UK customers, use `https://lon.identity.api.rackspacecloud.com/v2.0/` as
@@ -71,17 +70,13 @@ the `-P` flag to specify a custom parameter.
   server (Default: 2 GB Performance)
 * `wp_web_server_flavor`: Cloud server size to use on all additional web nodes
   (Default: 2 GB Performance)
-* `domain`: Domain to be used for the WordPress installatin  (Default:
+* `domain`: Domain to be used for the WordPress installation  (Default:
   example.com)
 * `version`: Version of WordPress to install (Default: 3.8.1)
 * `prefix`: The prefix to use for WordPress database tables (Default: wp_)
 * `database_name`: Name to use for the WordPress database (Default: wordpress)
 * `username`: Username for database, system, and WordPress logins (Default:
   wp_user)
-* `ssh_keypair_name`: Name of the SSH key pair to register with nova (Default:
-  none)
-* `ssh_sync_keypair_name`: Name of the SSH key pair to register with nova for
-  lsyncd purposes (Default: none)
 * `kitchen`: URL for the kitchen to clone with git. The Chef Solo run will copy
   all files in this repo into the kitchen for the chef run. (Default:
   https://github.com/rackspace-orchestration-templates/wordpress-multi)
