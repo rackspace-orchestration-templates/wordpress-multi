@@ -239,25 +239,25 @@ resources:
   database_password:
     type: "OS::Heat::RandomString"
     properties:
-      length: 32
+      length: 16
       sequence: lettersdigits
 
   mysql_root_password:
     type: "OS::Heat::RandomString"
     properties:
-      length: 32
+      length: 16
       sequence: lettersdigits
 
   mysql_repl_password:
     type: "OS::Heat::RandomString"
     properties:
-      length: 32
+      length: 16
       sequence: lettersdigits
 
   mysql_debian_password:
     type: "OS::Heat::RandomString"
     properties:
-      length: 32
+      length: 16
       sequence: lettersdigits
 
   # Random strings for WP salting
