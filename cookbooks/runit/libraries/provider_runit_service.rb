@@ -34,7 +34,6 @@ class Chef
   class Provider
     class Service
       class Runit < Chef::Provider::Service
-        # refactor this whole thing into a Chef11 LWRP
         include Chef::Mixin::ShellOut
 
         def initialize(*args)
@@ -68,7 +67,7 @@ class Chef
             no_runit_message = "Could not locate main runit sv_bin at \"#{new_resource.sv_bin}\". "
             no_runit_message << "Did you remember to install runit before declaring a \"runit_service\" resource? "
             no_runit_message << "\n\nTry adding the following to the top of your recipe:\n\ninclude_recipe \"runit\""
-            fail no_runit_message
+            raise no_runit_message
           end
 
           @current_resource.running(running?)
@@ -95,9 +94,9 @@ class Chef
           end
           load_new_resource_state
           @new_resource.enabled(true)
-          restart_service if @new_resource.restart_on_update && run_script.updated_by_last_action?
-          restart_log_service if @new_resource.restart_on_update && log_run_script.updated_by_last_action?
-          restart_log_service if @new_resource.restart_on_update && log_config_file.updated_by_last_action?
+          restart_service if @new_resource.restart_on_update and run_script.updated_by_last_action?
+          restart_log_service if @new_resource.restart_on_update and log_run_script.updated_by_last_action?
+          restart_log_service if @new_resource.restart_on_update and log_config_file.updated_by_last_action?
         end
 
         def configure_service
@@ -121,7 +120,7 @@ class Chef
             unless new_resource.env.empty?
               Chef::Log.debug("Setting up environment files for #{new_resource.service_name}")
               env_dir.run_action(:create)
-              env_files.each { |file| file.run_action(:create) }
+              env_files.each {|file| file.run_action(:create)}
             else
               Chef::Log.debug("Environment not specified for #{new_resource.service_name}, continuing")
             end
@@ -143,7 +142,7 @@ class Chef
             unless new_resource.control.empty?
               Chef::Log.debug("Creating control signal scripts for #{new_resource.service_name}")
               control_dir.run_action(:create)
-              control_signal_files.each { |file| file.run_action(:create) }
+              control_signal_files.each {|file| file.run_action(:create)}
             else
               Chef::Log.debug("Control signals not specified for #{new_resource.service_name}, continuing")
             end
@@ -158,16 +157,16 @@ class Chef
           service_link.run_action(:create)
 
           Chef::Log.debug("waiting until named pipe #{service_dir_name}/supervise/ok exists.")
-          until ::FileTest.pipe?("#{service_dir_name}/supervise/ok")
+          until ::FileTest.pipe?("#{service_dir_name}/supervise/ok") do
             sleep 1
-            Chef::Log.debug('.')
+            Chef::Log.debug(".")
           end
 
           if new_resource.log
             Chef::Log.debug("waiting until named pipe #{service_dir_name}/log/supervise/ok exists.")
-            until ::FileTest.pipe?("#{service_dir_name}/log/supervise/ok")
+            until ::FileTest.pipe?("#{service_dir_name}/log/supervise/ok") do
               sleep 1
-              Chef::Log.debug('.')
+              Chef::Log.debug(".")
             end
           end
         end
@@ -239,7 +238,7 @@ class Chef
 
         private
 
-        def runit_send_signal(signal, friendly_name = nil)
+        def runit_send_signal(signal, friendly_name=nil)
           friendly_name ||= signal
           converge_by("send #{friendly_name} to #{new_resource}") do
             shell_out!("#{new_resource.sv_bin} #{sv_args}#{signal} #{service_dir_name}")
@@ -249,21 +248,21 @@ class Chef
         end
 
         def running?
-          cmd = shell_out("#{new_resource.sv_bin} #{sv_args}status #{service_dir_name}")
+          cmd = shell_out("#{new_resource.sv_bin} #{sv_args}status #{new_resource.service_name}")
           (cmd.stdout =~ /^run:/ && cmd.exitstatus == 0)
         end
 
         def log_running?
-          cmd = shell_out("#{new_resource.sv_bin} #{sv_args}status #{service_dir_name}/log")
+          cmd = shell_out("#{new_resource.sv_bin} #{sv_args}status #{new_resource.service_name}/log")
           (cmd.stdout =~ /^run:/ && cmd.exitstatus == 0)
         end
 
         def enabled?
-          ::File.exists?(::File.join(service_dir_name, 'run'))
+          ::File.exists?(::File.join(service_dir_name, "run"))
         end
 
         def log_service_name
-          ::File.join(new_resource.service_name, 'log')
+          ::File.join(new_resource.service_name, "log")
         end
 
         def sv_dir_name
@@ -290,8 +289,10 @@ class Chef
         end
 
         def default_logger_content
-          "#!/bin/sh
-exec svlogd -tt /var/log/#{new_resource.service_name}"
+          return <<-EOF
+#!/bin/sh
+exec svlogd -tt /var/log/#{new_resource.service_name}
+EOF
         end
 
         #
@@ -315,7 +316,9 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
           @run_script.source("sv-#{new_resource.run_template_name}-run.erb")
           @run_script.cookbook(template_cookbook)
           @run_script.mode(00755)
-          @run_script.variables(:options => new_resource.options) if new_resource.options.respond_to?(:has_key?)
+          if new_resource.options.respond_to?(:has_key?)
+            @run_script.variables(:options => new_resource.options)
+          end
           @run_script
         end
 
@@ -352,25 +355,27 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
         def log_run_script
           return @log_run_script unless @log_run_script.nil?
           if new_resource.default_logger
-            @log_run_script = Chef::Resource::File.new(
-              ::File.join(sv_dir_name, 'log', 'run'),
-              run_context
-              )
+            @log_run_script = Chef::Resource::File.new(::File.join( sv_dir_name,
+                                                                    'log',
+                                                                    'run' ),
+                                                       run_context)
             @log_run_script.content(default_logger_content)
             @log_run_script.owner(new_resource.owner)
             @log_run_script.group(new_resource.group)
             @log_run_script.mode(00755)
           else
-            @log_run_script = Chef::Resource::Template.new(
-              ::File.join(sv_dir_name, 'log', 'run'),
-              run_context
-              )
+            @log_run_script = Chef::Resource::Template.new(::File.join( sv_dir_name,
+                                                                        'log',
+                                                                        'run' ),
+                                                            run_context)
             @log_run_script.owner(new_resource.owner)
             @log_run_script.group(new_resource.group)
             @log_run_script.mode(00755)
             @log_run_script.source("sv-#{new_resource.log_template_name}-log-run.erb")
             @log_run_script.cookbook(template_cookbook)
-            @log_run_script.variables(:options => new_resource.options) if new_resource.options.respond_to?(:has_key?)
+            if new_resource.options.respond_to?(:has_key?)
+              @log_run_script.variables(:options => new_resource.options)
+            end
           end
           @log_run_script
         end
@@ -381,9 +386,9 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
           @log_config_file.owner(new_resource.owner)
           @log_config_file.group(new_resource.group)
           @log_config_file.mode(00644)
-          @log_config_file.cookbook('runit')
-          @log_config_file.source('log-config.erb')
-          @log_config_file.variables(
+          @log_config_file.cookbook("runit")
+          @log_config_file.source("log-config.erb")
+          @log_config_file.variables({
             :size => new_resource.log_size,
             :num => new_resource.log_num,
             :min => new_resource.log_min,
@@ -392,7 +397,7 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
             :socket => new_resource.log_socket,
             :prefix => new_resource.log_prefix,
             :append => new_resource.log_config_append
-          )
+          })
           @log_config_file
         end
 
@@ -425,7 +430,9 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
           @check_script.source("sv-#{new_resource.check_script_template_name}-check.erb")
           @check_script.cookbook(template_cookbook)
           @check_script.mode(00755)
-          @check_script.variables(:options => new_resource.options) if new_resource.options.respond_to?(:has_key?)
+          if new_resource.options.respond_to?(:has_key?)
+            @check_script.variables(:options => new_resource.options)
+          end
           @check_script
         end
 
@@ -437,7 +444,9 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
           @finish_script.mode(00755)
           @finish_script.source("sv-#{new_resource.finish_script_template_name}-finish.erb")
           @finish_script.cookbook(template_cookbook)
-          @finish_script.variables(:options => new_resource.options) if new_resource.options.respond_to?(:has_key?)
+          if new_resource.options.respond_to?(:has_key?)
+            @finish_script.variables(:options => new_resource.options)
+          end
           @finish_script
         end
 
@@ -453,16 +462,18 @@ exec svlogd -tt /var/log/#{new_resource.service_name}"
         def control_signal_files
           return @control_signal_files unless @control_signal_files.nil?
           @control_signal_files = new_resource.control.map do |signal|
-            control_signal_file = Chef::Resource::Template.new(
-              ::File.join(sv_dir_name, 'control', signal),
-              run_context
-              )
+            control_signal_file = Chef::Resource::Template.new(::File.join( sv_dir_name,
+                                                                            'control',
+                                                                            signal),
+                                                                run_context)
             control_signal_file.owner(new_resource.owner)
             control_signal_file.group(new_resource.group)
             control_signal_file.mode(00755)
             control_signal_file.source("sv-#{new_resource.control_template_names[signal]}-#{signal}.erb")
             control_signal_file.cookbook(template_cookbook)
-            control_signal_file.variables(:options => new_resource.options) if new_resource.options.respond_to?(:has_key?)
+            if new_resource.options.respond_to?(:has_key?)
+              control_signal_file.variables(:options => new_resource.options)
+            end
             control_signal_file
           end
           @control_signal_files

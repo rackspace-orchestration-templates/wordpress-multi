@@ -386,6 +386,7 @@ resources:
           root_network_acl: [ "10.%" ]
         rax:
           mysql:
+            innodb_buffer_pool_mempercent: 0.8
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[mysql::server]",
