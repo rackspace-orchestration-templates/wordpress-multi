@@ -18,6 +18,7 @@
 #
 
 package "iptables" 
+package "perl"
 
 execute "rebuild-iptables" do
   command "/usr/sbin/rebuild-iptables"
@@ -28,12 +29,9 @@ directory "/etc/iptables.d" do
   action :create
 end
 
-template "/usr/sbin/rebuild-iptables" do
-  source "rebuild-iptables.erb"
+cookbook_file "/usr/sbin/rebuild-iptables" do
+  source "rebuild-iptables"
   mode 0755
-  variables(
-    :hashbang => ::File.exist?('/usr/bin/ruby') ? '/usr/bin/ruby' : '/opt/chef/embedded/bin/ruby'
-  )
 end
 
 case node[:platform]

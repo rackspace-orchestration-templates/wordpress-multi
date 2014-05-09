@@ -1,6 +1,6 @@
 logrotate Cookbook
 ==================
-[![Build Status](https://secure.travis-ci.org/stevendanna/logrotate.png?branch=master)](http://travis-ci.org/stevendanna/logrotate)
+[![Build Status](https://secure.travis-ci.org/opscode-cookbooks/logrotate.png?branch=master)](http://travis-ci.org/opscode-cookbooks/logrotate)
 
 Manages the logrotate package and provides a definition to manage application specific logrotate configuration.
 
@@ -88,10 +88,7 @@ The definition takes the following params:
 - `path`: specifies a single path (string) or multiple paths (array) that should have logrotation stanzas created in the config file. No default, this must be specified.
 - `enable`: true/false, if true it will create the template in /etc/logrotate.d.
 - `frequency`: sets the frequency for rotation. Default value is 'weekly'. Valid values are: daily, weekly, monthly, yearly, see the logrotate man page for more information.
-- `dateformat`: specifies date extension with %Y, %m, %d, and %s. The default value is -%Y%m%d.
 - `size`: Log files are rotated when they grow bigger than size bytes.
-- `maxsize`: Log  files  are  rotated  when  they  grow bigger than size bytes even before the additionally specified time interval.
-- `su`: Rotate log files set under this user and group instead of using default user/group.
 - `template`: sets the template source, default is "logrotate.erb".
 - `template_mode`: the mode to create the logrotate template with (default "0440")
 - `template_owner`: the owner of the logrotate template (default "root")
