@@ -4,11 +4,36 @@ description: |
   This is a Heat template to deploy Load Balanced WordPress servers with a
   backend database server.
 
+parameter_groups:
+
+- label: Server Settings
+  parameters:
+  - image
+
+- label: Web Server Settings
+  parameters:
+  - wp_master_server_hostname
+  - wp_master_server_flavor
+  - wp_web_server_count
+  - wp_web_server_hostnames
+  - wp_web_server_flavor
+
+- label: Database Settings
+  parameters:
+  - database_server_hostname
+  - database_server_flavor
+
+- label: WordPress Settings
+  parameters:
+  - domain
+  - username
+
 parameters:
 
   # Server settings
   load_balancer_hostname:
-    description: Hostname for the Load Balancer
+    label: Load Balancer Hostname
+    description: Hostname for the Cloud Load Balancer
     type: string
     default: WordPress-Load-Balancer
     constraints:
@@ -20,7 +45,8 @@ parameters:
         Must begin with a letter and contain only alphanumeric characters.
 
   database_server_hostname:
-    description: Database Server Name
+    label: Server Name
+    description: Hostname to use for your WordPress Database Server
     type: string
     default: WordPress-Database
     constraints:
@@ -32,7 +58,8 @@ parameters:
         Must begin with a letter and contain only alphanumeric characters.
 
   wp_master_server_hostname:
-    description: WordPress Master Server Name
+    label: Server Name
+    description: Hostname to use for your WordPress web-master server.
     type: string
     default: WordPress-Master
     constraints:
@@ -44,7 +71,8 @@ parameters:
         Must begin with a letter and contain only alphanumeric characters.
 
   wp_web_server_hostnames:
-    description: WordPress Web Server Name
+    label: Server Name
+    description: Hostname to use for all additional WordPress web nodes
     type: string
     default: WordPress-Web
     constraints:
@@ -56,7 +84,8 @@ parameters:
         Must begin with a letter and contain only alphanumeric characters.
 
   wp_web_server_count:
-    description: Number of web servers to deploy
+    label: Web Server Count
+    description: Number of web servers to deploy in addition to the web-master
     type: number
     default: 1
     constraints:
@@ -66,7 +95,10 @@ parameters:
       description: Must be between 0 and 7 servers.
 
   image:
-    description: Server Image used for all servers.
+    label: Operating System
+    description: |
+      Server image used for all servers that are created as a part of this
+      deployment
     type: string
     default: Ubuntu 12.04 LTS (Precise Pangolin)
     constraints:
@@ -75,7 +107,10 @@ parameters:
       description: Must be a supported operating system.
 
   database_server_flavor:
-    description: Database Cloud Server flavor
+    label: Server Size
+    description: |
+      Cloud Server size to use for the database server. Sizes refer to the
+      amount of RAM allocated to the server.
     type: string
     default: 4 GB Performance
     constraints:
@@ -95,7 +130,12 @@ parameters:
         selected to deploy into.
 
   wp_master_server_flavor:
-    description: Master Cloud Server flavor
+    label: Server Size
+    description: |
+      Cloud Server size to use for the web-master node. The size should be at
+      least one size larger than what you use for the web nodes. This server
+      handles all admin calls and will ensure files are synced across all
+      other nodes.
     type: string
     default: 2 GB Performance
     constraints:
@@ -117,7 +157,9 @@ parameters:
         selected to deploy into.
 
   wp_web_server_flavor:
-    description: Web Cloud Server flavor
+    label: Server size
+    description: |
+      Cloud Server size to use on all of the additional web nodes.
     type: string
     default: 2 GB Performance
     constraints:
@@ -140,7 +182,8 @@ parameters:
 
   # WordPress settings
   domain:
-    description: Domain to be used with WordPress site
+    label: Site Domain
+    description: Domain to be used with this WordPress site
     type: string
     default: "example.com"
     constraints:
@@ -199,6 +242,7 @@ parameters:
         underscores.
 
   username:
+    label: Username
     description: "Username for system, database, and WordPress logins."
     type: string
     default: wp_user
@@ -208,9 +252,12 @@ parameters:
         Must be shorter than 16 characters, this is due to MySQL's maximum
         username length.
 
+  ## The below parameters are for development purposes. Use the default
+  ## settings for these parameters when attempting to deploy this stack.
   # Chef configuration options
   kitchen:
-    description: URL for the kitchen to use
+    description: |
+      URL for the kitchen to use, fetched using git
     type: string
     default: https://github.com/rackspace-orchestration-templates/wordpress-multi
 
@@ -396,7 +443,7 @@ resources:
           root_network_acl: [ "10.%" ]
         rax:
           mysql:
-            innodb_buffer_pool_mempercent: 0.7
+            innodb_buffer_pool_mempercent: 0.6
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[mysql::server]",
