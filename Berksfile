@@ -30,8 +30,7 @@ cookbook 'varnish',
 cookbook 'lsyncd',
   :git => 'https://github.com/dgivens/chef-lsyncd/'
 cookbook 'rax-wordpress',
-  :git => 'https://github.com/brint/rax-wordpress-cookbook',
-  :ref => '8c6161e7b19dd9b64c62177a37b04ecf1c7e321a'
+  :git => 'https://github.com/brint/rax-wordpress-cookbook'
 cookbook 'cron',
   :git => 'https://github.com/opscode-cookbooks/cron',
   :ref => '8007fc9ef6083e04554d729b4ffaef4e7ca81d7a'

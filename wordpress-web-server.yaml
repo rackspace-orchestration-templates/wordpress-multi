@@ -101,6 +101,11 @@ parameters:
     type: string
     default: 127.0.0.1
 
+  memcached_host:
+    description: IP/Host of the memcached server
+    type: string
+    default: 127.0.0.1
+
   username:
     description: "Username for system, database, and WordPress logins."
     type: string
@@ -182,8 +187,6 @@ resources:
           timeout: 30
           serversignature: "Off"
           traceenable: "Off"
-        memcached:
-          listen: "localhost"
         varnish:
           listen_port: "80"
         wordpress:
@@ -213,16 +216,17 @@ resources:
           lsyncd:
             ssh:
               pub: { get_param: lsync_pub }
+          memcache:
+            server: { get_param: memcached_host }
           varnish:
             master_backend: { get_param: varnish_master_backend }
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[rax-wordpress::apache-prep]",
                    "recipe[rax-wordpress::x509]",
-                   "recipe[memcached]",
                    "recipe[php]",
-                   "recipe[php::module_memcache]",
                    "recipe[wordpress]",
+                   "recipe[rax-wordpress::memcache]",
                    "recipe[varnish::apt_repo]",
                    "recipe[varnish]",
                    "recipe[rax-wordpress::apache]",

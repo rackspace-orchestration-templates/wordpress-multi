@@ -4,7 +4,13 @@ Note: This is still a work in progress. It is lacking a lot in terms of
 documentation and styling.
 
 This is cookbook with wrapper recipes to complete Rackspace's customer
-WordPress deployment. We aim to use as many community and public cookbooks as
+WordPress deployment. Two versions of this deployment can be found here:
+
+
+[multi](https://github.com/rackspace-orchestration-templates/wordpress-multi)
+[single](https://github.com/rackspace-orchestration-templates/wordpress-single)
+
+We aim to use as many community and public cookbooks as
 possible to make this happen. This cookbook can be used to stand up a server
 with Apache, PHP, MySQL, Varnish, vsftpd, hollandbackup, and lsync installed.
 It will create a local user that can be used to move content via scp, sftp, or
@@ -47,6 +53,13 @@ Creates the .ssh directory for the WordPress user, installs the public SSH key.
 #### lsyncd
 Creates the .ssh directory for the WordPress user, installs the SSH private
 key.
+
+#### memcache
+Installs and configures PHP's memcache module
+
+#### memcached-firewall
+Configures the firewall on the memcached server. Memcached requires no
+authentication, so it's best to lock down access to the service.
 
 #### mysql
 Sets up /root/.my.cnf
