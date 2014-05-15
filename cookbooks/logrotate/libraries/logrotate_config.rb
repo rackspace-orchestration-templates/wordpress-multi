@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+# Helper module for Logrotate configuration
 module CookbookLogrotate
   DIRECTIVES = %w[
     compress        copy        copytruncate    daily           dateext
@@ -25,18 +26,18 @@ module CookbookLogrotate
     nodelaycompress nodateext   nomail          nomissingok     noolddir
     nosharedscripts noshred     notifempty      sharedscripts   shred
     weekly          yearly
-  ]
+  ] unless const_defined?(:DIRECTIVES)
 
   VALUES = %w[
     compresscmd    uncompresscmd  compressext    compressoptions
     create         dateformat     include        mail
     maxage         minsize        rotate         size
     shredcycles    start          tabooext
-  ]
+  ] unless const_defined?(:VALUES)
 
-  SCRIPTS = %w[firstaction  prerotate  postrotate  lastaction]
+  SCRIPTS = %w[firstaction  prerotate  postrotate  lastaction] unless const_defined?(:SCRIPTS)
 
-  DIRECTIVES_AND_VALUES = DIRECTIVES + VALUES
+  DIRECTIVES_AND_VALUES = DIRECTIVES + VALUES unless const_defined?(:DIRECTIVES_AND_VALUES)
 
   # Helper class for creating configurations
   class LogrotateConfiguration
@@ -83,10 +84,10 @@ module CookbookLogrotate
 
     private
 
-      def initialize(hash)
-        @directives = LogrotateConfiguration.directives_from(hash)
-        @values = LogrotateConfiguration.values_from(hash)
-        @paths = LogrotateConfiguration.paths_from(hash)
-      end
+    def initialize(hash)
+      @directives = LogrotateConfiguration.directives_from(hash)
+      @values = LogrotateConfiguration.values_from(hash)
+      @paths = LogrotateConfiguration.paths_from(hash)
+    end
   end
 end

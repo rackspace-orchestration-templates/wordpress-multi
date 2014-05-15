@@ -35,7 +35,7 @@ log_rotate_params = {
 define(:logrotate_app, log_rotate_params) do
   include_recipe 'logrotate::default'
 
-  acceptable_options = %w(missingok compress delaycompress dateext copytruncate notifempty delaycompress ifempty mailfirst nocompress nocopy nocopytruncate nocreate nodelaycompress nomail nomissingok noolddir nosharedscripts notifempty sharedscripts)
+  acceptable_options = %w(missingok compress delaycompress dateext dateyesterday copytruncate notifempty delaycompress ifempty mailfirst nocompress nocopy nocopytruncate nocreate nodelaycompress nomail nomissingok noolddir nosharedscripts notifempty sharedscripts)
   options_tmp = params[:options] ||= %w(missingok compress delaycompress copytruncate notifempty)
   options = options_tmp.respond_to?(:each) ? options_tmp : options_tmp.split
 
@@ -56,8 +56,11 @@ define(:logrotate_app, log_rotate_params) do
         :path          => Array(params[:path]).map { |path| path.to_s.inspect }.join(' '),
         :create        => params[:create],
         :frequency     => params[:frequency],
+        :dateformat    => params[:dateformat],
         :size          => params[:size],
         :minsize       => params[:minsize],
+        :maxsize       => params[:maxsize],
+        :su            => params[:su],
         :rotate        => params[:rotate],
         :olddir        => params[:olddir],
         :sharedscripts => params[:sharedscripts],

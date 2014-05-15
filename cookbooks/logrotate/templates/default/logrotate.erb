@@ -5,11 +5,20 @@
 <%- if @frequency %>
   <%= @frequency %>
 <%- end %>
+<%- if @dateformat %> 
+  dateformat <%= @dateformat %>
+<%- end %>
 <%- if @size %>
   size <%= @size %>
 <%- end %>
 <%- if @minsize %>
   minsize <%= @minsize %>
+<%- end %>
+<%- if @maxsize %>
+  maxsize <%= @maxsize %>
+<%- end %>
+<%- if @su %>
+  su <%= @su %>
 <%- end %>
 <%- if @rotate %>
   rotate <%= @rotate %>
