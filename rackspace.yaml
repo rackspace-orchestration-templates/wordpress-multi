@@ -1,0 +1,12 @@
+schema-version: 1.0.0
+application-family: CMS
+application-name: WordPress
+application-version: 3.9.1
+flavor: |
+  Multiple Linux servers with WordPress 3.9.1 and one Linux server with MySQL
+  5.5
+flavor-weight: 1
+reach-info:
+  tattoo: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-tattoo.png
+  icon-20x20: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-icon-20x20.png
+  rackspace-supported: true
