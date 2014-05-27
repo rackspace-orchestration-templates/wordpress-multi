@@ -6,14 +6,119 @@ flavor: |
   Multiple Linux servers with WordPress 3.9.1 and one Linux server with MySQL
   5.5
 flavor-weight: 1
-abstract: |
-  Multiple [WordPress](http://wordpress.org/about/) servers with
-  [lsyncd](https://code.google.com/p/lsyncd/),
-  [vsftpd](https://security.appspot.com/vsftpd.html#about) and
-  [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load
-  Balancer. The database will be hosted on a Linux server with [MySQL
-  5.5](http://www.mysql.com/about/).
 reach-info:
   tattoo: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-tattoo.png
   icon-20x20: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-icon-20x20.png
   rackspace-supported: true
+abstract: |
+  Multiple [WordPress](http://wordpress.org/about/) servers with
+  [lsyncd](https://code.google.com/p/lsyncd/),
+  [vsftpd](https://security.appspot.com/vsftpd.html#about) and
+  [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
+  The database will be hosted on a Linux server with [MySQL
+  5.5](http://www.mysql.com/about/).
+instructions: |
+  #### Getting Started
+  If you're new to WordPress, the [First Steps With
+  WordPress](http://codex.wordpress.org/First_Steps_With_WordPress)
+  documentation will step you through the process of logging into the admin
+  panel, customizing your blog, and changing your theme.
+
+  The [WordPress Lessons](http://codex.wordpress.org/WordPress_Lessons) cover a
+  wide range of topics for users and designers.
+
+  #### Accessing Your Deployment
+  If you provided a domain name that is associated with your Rackspace Cloud
+  account and chose to create DNS records, you should be able to navigate to
+  the provided domain name in your browser. If DNS has not been configured yet,
+  please refer to this
+  [documentation](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file)
+  on how to setup your hosts file to allow your browser to access your
+  deployment via domain name. Please note: some applications like WordPress,
+  Drupal, and Magento may not work properly unless accessed via domain name.
+
+  #### Migrating an Existing Site
+  If you'd like to move your existing site to this deployment, there are
+  plugins available such as
+  [duplicator](http://wordpress.org/plugins/duplicator/) or [WP Migrate
+  DB](http://wordpress.org/plugins/wp-migrate-db/) that can help ease the
+  migration process. This will give you a copy of the database that you can
+  import into this deployment. There are a number of other tools to help with
+  this process. Static content that is stored on the filesystem will need to be
+  moved manually.
+
+  #### Plugins
+  There are over 23,000 plugins that have been created by an engaged developer
+  community. The [plugin directory](http://wordpress.org/extend/plugins/)
+  provides an easy way to discover popular plugins that other users have found
+  to be helpful. [Managing
+  Plugins](https://codex.wordpress.org/Managing_Plugins) is important and you
+  should be aware that some plugins decrease your site's performance so use
+  them sparingly.
+
+  #### Scaling out
+  There is not yet an automatic way to add additional nodes to this deployment.
+  You could manually expand the deployment by taking a snapshot of one of the
+  slave web servers and build a new server from the snapshot. Once it is online
+  the lsyncd configuration on the master server would need to be altered so
+  that file changes are pushed to the new server and the new server would need
+  to be added to the Cloud Load Balancer configuration.
+
+  #### Details of Your Setup
+  This deployment was stood up using
+  [chef-solo](http://docs.opscode.com/chef_solo.html). Once the deployment is
+  up, chef will not run again, so it is safe to modify configurations.
+
+  A system user of 'wp_user' or the username you provided as a part of your
+  deployment has been created with the same password as your WordPress user.
+  This user can be used to SCP, SFTP, or FTP content over to your site. We
+  recommend using SCP or any encrypted protocol. Clear text protocols such as
+  FTP could inadvertently expose your user credentials.
+
+  WordPress itself was installed using [WP-CLI](http://wp-cli.org/). WordPress
+  is installed in /var/www/vhosts/YOUR DOMAIN/ and served by
+  [Apache](http://httpd.apache.org/). The web site configuration is in
+  /etc/apache2/sites-enabled. The configuration file will be named using the
+  domain name used as a part of this deployment (for example, domain.com.conf).
+
+  In order to significantly improve performance, Apache has been moved to run
+  on port 8080, and [Varnish](https://www.varnish-cache.org/) is listening on
+  port 80. Varnish will cache content served by WordPress, store it in memory,
+  and then serve it from memory if any subsequent requests are made for the
+  same content. A special configuration file build for WordPress is in place.
+  The configuration can be found in /etc/varnish/include/.
+
+  [Lsyncd](https://code.google.com/p/lsyncd/) has been in installed to sync
+  static content across the front end servers. All new content will be
+  published to the master node and then synced across with lsync to the other
+  web nodes. When uploading content while migrating a site, you'll only need to
+  upload the content to the master node. The configuration for lsync can be
+  found in /etc/lsyncd.
+
+  [vsftpd](https://security.appspot.com/vsftpd.html) has been installed to
+  allow you FTP access to the content of your site. As mentioned earlier, you
+  can use the WordPress username and password provided as the credentials for
+  FTP.
+
+  [MySQL](http://www.mysql.com/) is the database backend used in this
+  deployment, and it has been deployed on it's own server. The MySQL root
+  password is included in the password section of this deployment. If you do
+  lose the password, it is also available in /root/.my.cnf on the database
+  server. MySQL backups are performed locally by
+  [Holland](http://wiki.hollandbackup.org/). The backups will be stored on the
+  database server in /var/lib/mysqlbackup.
+
+  #### Updating WordPress
+  If you'd like to update WordPress to the newest version, you can leverage the
+  [One-click
+  Update](http://codex.wordpress.org/Updating_WordPress#One-click_Update) now
+  available through the web interface. This is the simplest, most pain free way
+  to upgrade your installation. Keeping your installation up to date is
+  important for maintaining site security.
+
+  #### Logging in via SSH
+  The private key provided in the passwords section can be used to login as
+  root via SSH. We have an article on how to use these keys with [Mac OS X and
+  Linux](http://www.rackspace.com/knowledge_center/article/logging-in-with-a-ssh-private-key-on-linuxmac)
+  as well as [Windows using
+  PuTTY](http://www.rackspace.com/knowledge_center/article/logging-in-with-a-ssh-private-key-on-windows).
