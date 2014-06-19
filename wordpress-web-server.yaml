@@ -161,6 +161,12 @@ parameters:
     description: Version of chef client to use
     type: string
     default: 11.12.2
+  
+  # parent stack id for metadata
+  parent_stack_id:
+    description: Stack id of the parent stack
+    type: string
+    default: "none"
 
 resources:
 
@@ -171,6 +177,8 @@ resources:
       flavor: { get_param: wp_web_server_flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
+      metadata:
+        rax-heat: { get_param: parent_stack_id }
 
   wp_web_server_setup:
     type: "OS::Heat::ChefSolo"
