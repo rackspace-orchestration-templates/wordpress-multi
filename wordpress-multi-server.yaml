@@ -362,6 +362,8 @@ resources:
       virtualIps:
       - type: PUBLIC
         ipVersion: IPV4
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
 
   database_server:
     type: "Rackspace::Cloud::Server"
@@ -370,6 +372,8 @@ resources:
       flavor: { get_param: database_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
 
   wp_master_server:
     type: "Rackspace::Cloud::Server"
@@ -378,6 +382,8 @@ resources:
       flavor: { get_param: wp_master_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
@@ -411,6 +417,7 @@ resources:
           ssh_public_key: { get_attr: [ssh_key, public_key] }
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
+          parent_stack_id: { get_param: "OS::stack_id" }
 
   # Chef resources
   database_server_setup:
