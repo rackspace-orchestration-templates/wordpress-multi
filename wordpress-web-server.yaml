@@ -161,7 +161,7 @@ parameters:
     description: Version of chef client to use
     type: string
     default: 11.12.2
-  
+
   # parent stack id for metadata
   parent_stack_id:
     description: Stack id of the parent stack
@@ -243,7 +243,7 @@ resources:
                    "recipe[rax-wordpress::lsyncd-client]"]
 
 outputs:
-  wp_web_server_ip:
+  accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
 
   privateIPv4:
