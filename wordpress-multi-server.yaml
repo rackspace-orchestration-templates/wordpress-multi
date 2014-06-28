@@ -597,24 +597,32 @@ resources:
 outputs:
   private_key:
     value: { get_attr: [ssh_key, private_key] }
+    description: SSH Private IP
 
   load_balancer_ip:
-    value: { get_attr: [load_balancer, PublicIp]}
-
-  database_server_ip:
-    value: { get_attr: [database_server, accessIPv4] }
+    value: { get_attr: [load_balancer, PublicIp] }
+    description: Load Balancer IP
 
   wordpress_user:
     value: { get_param: username }
-
-  wordpress_web_master_ip:
-    value: { get_attr: [wp_master_server, accessIPv4] }
-
-  wordpress_web_ips:
-    value: { get_attr: [wp_web_servers, accessIPv4] }
+    description: WordPress User
 
   wordpress_password:
     value: { get_attr: [database_password, value] }
+    description: WordPress Password
+
+  database_server_ip:
+    value: { get_attr: [database_server, accessIPv4] }
+    description: Database Server IP
+
+  wordpress_web_master_ip:
+    value: { get_attr: [wp_master_server, accessIPv4] }
+    description: Web-Master IP
+
+  wordpress_web_ips:
+    value: { get_attr: [wp_web_servers, accessIPv4] }
+    description: Web Server IPs
 
   mysql_root_password:
     value: { get_attr: [mysql_root_password, value] }
+    description: MySQL Root Password

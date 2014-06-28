@@ -90,6 +90,9 @@ Use `heat output-show <OUTPUT NAME>` to get the value fo a specific output.
 
 * `private_key`: SSH private that can be used to login as root to the server.
 * `load_balancer_ip`: Public IP address of the Load Balancer
+* `database_server_ip`: Public IP of Database Server
+* `wordpress_web_master_ip`: WordPress web-master server IP
+* `wordpress_web_ips`: List of WordPress web server IPs
 * `wordpress_user`: Username for database, system, and WordPress logins
 * `wordpress_password`: Password for the `wordpress_user`
 * `mysql_root_password`: Root password for MySQL
