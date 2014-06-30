@@ -12,21 +12,33 @@ parameter_groups:
 
 - label: Web Server Settings
   parameters:
-  - wp_master_server_hostname
   - wp_master_server_flavor
   - wp_web_server_count
-  - wp_web_server_hostnames
   - wp_web_server_flavor
 
 - label: Database Settings
   parameters:
-  - database_server_hostname
   - database_server_flavor
 
 - label: WordPress Settings
   parameters:
   - domain
   - username
+
+- label: rax-dev-params
+  # These are parameters that will not be displayed in the portal. The purpose
+  # of these parameters are for users who are developing or testing newer or
+  # different setups. If any of these parameters are changed, there is a good
+  # chance this stack will fail to properly deploy.
+  parameters:
+  - kitchen
+  - chef_version
+  - child_template
+  - version
+  - load_balancer_hostname
+  - wp_web_server_hostnames
+  - wp_master_server_hostname
+  - database_server_hostname
 
 parameters:
 
@@ -191,6 +203,7 @@ parameters:
       description: Must be a valid domain name
 
   version:
+    label: WordPress Version
     description: Version of WordPress to install
     type: string
     default: "3.9.1"
@@ -256,17 +269,20 @@ parameters:
   ## settings for these parameters when attempting to deploy this stack.
   # Chef configuration options
   kitchen:
+    label: Kitchen
     description: |
       URL for the kitchen to use, fetched using git
     type: string
     default: https://github.com/rackspace-orchestration-templates/wordpress-multi
 
   chef_version:
+    label: Chef Version
     description: Version of chef client to use
     type: string
-    default: 11.12.4
+    default: 11.12.8
 
   child_template:
+    label: Child Template
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
@@ -581,15 +597,32 @@ resources:
 outputs:
   private_key:
     value: { get_attr: [ssh_key, private_key] }
+    description: SSH Private IP
 
   load_balancer_ip:
-    value: { get_attr: [load_balancer, PublicIp]}
+    value: { get_attr: [load_balancer, PublicIp] }
+    description: Load Balancer IP
 
   wordpress_user:
     value: { get_param: username }
+    description: WordPress User
 
   wordpress_password:
     value: { get_attr: [database_password, value] }
+    description: WordPress Password
+
+  database_server_ip:
+    value: { get_attr: [database_server, accessIPv4] }
+    description: Database Server IP
+
+  wordpress_web_master_ip:
+    value: { get_attr: [wp_master_server, accessIPv4] }
+    description: Web-Master IP
+
+  wordpress_web_ips:
+    value: { get_attr: [wp_web_servers, accessIPv4] }
+    description: Web Server IPs
 
   mysql_root_password:
     value: { get_attr: [mysql_root_password, value] }
+    description: MySQL Root Password
