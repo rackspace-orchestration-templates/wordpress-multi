@@ -235,6 +235,7 @@ parameters:
 
   # Database and system user configuration
   prefix:
+    label: Wordpress Prefix
     description: Prefix to use for
     type: string
     default: wp_
@@ -245,6 +246,7 @@ parameters:
         letters, numbers, $, and/or underscores.
 
   database_name:
+    label: Database Name
     description: WordPress database name
     type: string
     default: wordpress
