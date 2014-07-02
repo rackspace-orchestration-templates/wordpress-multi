@@ -110,8 +110,8 @@ parameters:
   image:
     label: Operating System
     description: |
-      Server image used for all servers that are created as a part of this
-      deployment
+      Required: Server image used for all servers that are created as a part of
+      this deployment.
     type: string
     default: Ubuntu 12.04 LTS (Precise Pangolin)
     constraints:
