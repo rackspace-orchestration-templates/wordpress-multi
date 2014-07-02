@@ -35,6 +35,7 @@ parameter_groups:
   - chef_version
   - child_template
   - version
+  - prefix
   - load_balancer_hostname
   - wp_web_server_hostnames
   - wp_master_server_hostname
