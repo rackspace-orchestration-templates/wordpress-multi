@@ -10,7 +10,13 @@ to setup the server.
 
 Requirements
 ============
-* A Heat provider that supports the Rackspace `OS::Heat::ChefSolo` plugin.
+* A Heat provider that supports the following:
+  * OS::Heat::ChefSolo
+  * OS::Heat::RandomString
+  * Rackspace::Cloud::LoadBalancer
+  * OS::Heat::ResourceGroup
+  * Rackspace::Cloud::Server
+  * OS::Nova::KeyPair
 * An OpenStack username, password, and tenant id.
 * [python-heatclient](https://github.com/openstack/python-heatclient)
 `>= v0.2.8`:
@@ -31,7 +37,7 @@ Here is an example of how to deploy this template using the
 heat --os-username <OS-USERNAME> --os-password <OS-PASSWORD> --os-tenant-id \
   <TENANT-ID> --os-auth-url https://identity.api.rackspacecloud.com/v2.0/ \
   stack-create WordPress-Multi -f wordpress-multi-server.yaml \
-  -P server_hostname=my-site -P domain=example.org
+  -P domain=example.org
 ```
 
 * For UK customers, use `https://lon.identity.api.rackspacecloud.com/v2.0/` as
@@ -52,36 +58,39 @@ Parameters
 Parameters can be replaced with your own values when standing up a stack. Use
 the `-P` flag to specify a custom parameter.
 
-* `load_balancer_hostname`: Hostname to use for the load balancer (Default:
-  WordPress-Load-Balancer)
-* `database_server_hostname`: Hostname to use for the data base server
-  (Default: WordPress-Database)
-* `wp_master_server_hostname`: Sets the hostname for the admin/master WordPress
-  node (Default: WordPress-Master)
-* `wp_web_server_hostnames`: Sets the hostnames for all web additional web
-  nodes (Default: WordPress-Web)
-* `wp_web_server_count`: Number of web nodes to create in addition to the
-  admin/master node (Default: 1)
-* `image`: Operating system to install on all systems (Default: Ubuntu 12.04
-  LTS (Precise Pangolin))
-* `database_server_flavor`: Cloud server size to use with the database server
-  (Default: 4 GB Performance)
-* `wp_master_server_flavor`: Cloud server size to use with the admin/master
-  server (Default: 2 GB Performance)
-* `wp_web_server_flavor`: Cloud server size to use on all additional web nodes
-  (Default: 2 GB Performance)
-* `domain`: Domain to be used for the WordPress installation  (Default:
-  example.com)
-* `version`: Version of WordPress to install (Default: 3.9.1)
-* `prefix`: The prefix to use for WordPress database tables (Default: wp_)
-* `database_name`: Name to use for the WordPress database (Default: wordpress)
-* `username`: Username for database, system, and WordPress logins (Default:
+* `username`: Username for system, database, and WordPress logins. (Default:
   wp_user)
-* `kitchen`: URL for the kitchen to clone with git. The Chef Solo run will copy
-  all files in this repo into the kitchen for the chef run. (Default:
+* `domain`: Domain to be used with this WordPress site (Default: example.com)
+* `wp_web_server_flavor`: Cloud Server size to use on all of the additional web
+  nodes. (Default: 2 GB Performance)
+* `wp_web_server_hostnames`: Hostname to use for all additional WordPress web
+  nodes (Default: WordPress-Web%index%)
+* `image`: Required: Server image used for all servers that are created as a
+  part of this deployment. (Default: Ubuntu 12.04 LTS (Precise Pangolin))
+* `child_template`: Location of the child template to use for the WordPress web
+  servers (Default:
+  https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml)
+* `load_balancer_hostname`: Hostname for the Cloud Load Balancer (Default:
+  WordPress-Load-Balancer)
+* `prefix`: Prefix to use for database table names. (Default: wp_)
+* `database_server_flavor`: Cloud Server size to use for the database server.
+  Sizes refer to the amount of RAM allocated to the server. (Default: 4 GB
+  Performance)
+* `kitchen`: URL for the kitchen to use, fetched using git (Default:
   https://github.com/rackspace-orchestration-templates/wordpress-multi)
-* `chef_version`: Chef client version to install for the chef run.  (Default:
-  11.12.2)
+* `database_server_hostname`: Hostname to use for your WordPress Database
+  Server (Default: WordPress-Database)
+* `database_name`: WordPress database name (Default: wordpress)
+* `wp_master_server_hostname`: Hostname to use for your WordPress web-master
+  server. (Default: WordPress-Master)
+* `wp_web_server_count`: Number of web servers to deploy in addition to the
+  web-master (Default: 1)
+* `version`: Version of WordPress to install (Default: 3.9.1)
+* `wp_master_server_flavor`: Cloud Server size to use for the web-master node.
+  The size should be at least one size larger than what you use for the web
+  nodes. This server handles all admin calls and will ensure files are synced
+  across all other nodes. (Default: 2 GB Performance)
+* `chef_version`: Version of chef client to use (Default: 11.12.8)
 
 Outputs
 =======
