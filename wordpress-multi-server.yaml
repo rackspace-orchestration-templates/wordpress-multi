@@ -87,7 +87,7 @@ parameters:
     label: Server Name
     description: Hostname to use for all additional WordPress web nodes
     type: string
-    default: WordPress-Web
+    default: WordPress-Web%index%
     constraints:
     - length:
         min: 1
@@ -237,7 +237,7 @@ parameters:
   # Database and system user configuration
   prefix:
     label: Wordpress Prefix
-    description: Prefix to use for
+    description: Prefix to use for database table names.
     type: string
     default: wp_
     constraints:
