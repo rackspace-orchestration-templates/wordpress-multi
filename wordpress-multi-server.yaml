@@ -83,18 +83,18 @@ parameters:
       description: |
         Must begin with a letter and contain only alphanumeric characters.
 
-  wp_web_server_hostnames:
-    label: Server Name
-    description: Hostname to use for all additional WordPress web nodes
-    type: string
-    default: WordPress-Web%index%
-    constraints:
-    - length:
-        min: 1
-        max: 64
-    - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
-      description: |
-        Must begin with a letter and contain only alphanumeric characters.
+  # wp_web_server_hostnames:
+  #  label: Server Name
+  #  description: Hostname to use for all additional WordPress web nodes
+  #  type: string
+  #  default: WordPress-Web%index%
+  #  constraints:
+  #  - length:
+  #      min: 1
+  #      max: 64
+  #  - allowed_pattern: "^[a-zA-Z][a-zA-Z0-9-]*$"
+  #    description: |
+  #      Must begin with a letter and contain only alphanumeric characters.
 
   wp_web_server_count:
     label: Web Server Count
@@ -406,12 +406,13 @@ resources:
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
+    depends_on: database_server
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
         type: { get_param: child_template }
         properties:
-          wp_web_server_hostname: { get_param: wp_web_server_hostnames }
+          wp_web_server_hostname: WordPress-Web%index%
           image: { get_param: image }
           wp_web_server_flavor: { get_param: wp_web_server_flavor }
           domain: { get_param: domain }
