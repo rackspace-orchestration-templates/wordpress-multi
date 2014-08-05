@@ -406,6 +406,7 @@ resources:
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
+    depends_on: database_server
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
