@@ -1,7 +1,7 @@
 schema-version: 1.0.0
 application-family: CMS
 application-name: WordPress
-application-version: 3.9.1
+application-version: 3.9.2
 flavor: Multiple Linux servers
 flavor-weight: 1
 reach-info:
@@ -9,7 +9,7 @@ reach-info:
   icon-20x20: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-icon-20x20.png
   rackspace-supported: true
 abstract: |
-  Multiple [WordPress](http://wordpress.org/about/) v3.9.1 servers with
+  Multiple [WordPress](http://wordpress.org/about/) v3.9.2 servers with
   [lsyncd](https://code.google.com/p/lsyncd/),
   [vsftpd](https://security.appspot.com/vsftpd.html#about) and
   [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
