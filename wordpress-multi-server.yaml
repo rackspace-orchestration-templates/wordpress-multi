@@ -143,7 +143,7 @@ parameters:
         selected to deploy into.
 
   wp_master_server_flavor:
-    label: Server Size
+    label: Master Server Size
     description: |
       Cloud Server size to use for the web-master node. The size should be at
       least one size larger than what you use for the web nodes. This server
@@ -170,7 +170,7 @@ parameters:
         selected to deploy into.
 
   wp_web_server_flavor:
-    label: Server size
+    label: Node Server size
     description: |
       Cloud Server size to use on all of the additional web nodes.
     type: string
