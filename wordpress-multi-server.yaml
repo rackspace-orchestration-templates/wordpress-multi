@@ -170,7 +170,7 @@ parameters:
         selected to deploy into.
 
   wp_web_server_flavor:
-    label: Node Server size
+    label: Node Server Size
     description: |
       Cloud Server size to use on all of the additional web nodes.
     type: string
