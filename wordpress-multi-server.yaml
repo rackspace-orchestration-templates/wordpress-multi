@@ -469,10 +469,13 @@ resources:
           remove_anonymous_users: true
           root_network_acl: [ "10.%" ]
         rax:
+          firewall:
+            tcp: [22]
           mysql:
             innodb_buffer_pool_mempercent: 0.6
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
+                   "recipe[rax-firewall]",
                    "recipe[mysql::server]",
                    "recipe[rax-wordpress::memcached-firewall]",
                    "recipe[memcached]",

@@ -35,5 +35,7 @@ cookbook 'cron',
   :git => 'https://github.com/opscode-cookbooks/cron',
   :ref => '8007fc9ef6083e04554d729b4ffaef4e7ca81d7a'
 cookbook 'rax-mysql-tunables',
-     :git => 'https://github.com/JasonBoyles/rax-mysql-tunables.git',
-     :ref => '7d09b9c7dca4b94002013f018408cac8c9d5c129'
+  :git => 'https://github.com/JasonBoyles/rax-mysql-tunables.git',
+  :ref => '7d09b9c7dca4b94002013f018408cac8c9d5c129'
+cookbook 'rax-firewall',
+  :git => 'https://github.com/brint/rax-firewall-cookbook'
