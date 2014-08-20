@@ -12,7 +12,6 @@ def mysql():
 
     assert port.is_listening(3306)
     assert process.is_up("mysqld")
-    assert service.is_enabled("memcached")
 
     root_my_cnf = "/root/.my.cnf"
     assert file.exists(root_my_cnf)
@@ -24,6 +23,7 @@ def mysql():
 def memcached():
     env.platform_family = detect.detect()
 
+    assert service.is_enabled("memcached")
     assert package.installed("memcached")
     assert port.is_listening(11211)
     assert process.is_up("memcached")
