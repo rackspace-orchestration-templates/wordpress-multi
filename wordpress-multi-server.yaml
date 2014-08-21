@@ -374,6 +374,13 @@ resources:
       - addresses: { get_attr: [wp_web_servers, privateIPv4] }
         port: 80
         condition: ENABLED
+      healthMonitor:
+        type: HTTP
+        delay: 10
+        timeout: 5
+        attemptsBeforeDeactivation: 2
+        path: /
+        statusRegex: ^[23]0[0-2]$
       port: 80
       protocol: HTTP
       algorithm: ROUND_ROBIN
