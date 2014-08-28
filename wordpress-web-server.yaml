@@ -228,12 +228,18 @@ resources:
             server: { get_param: memcached_host }
           varnish:
             master_backend: { get_param: varnish_master_backend }
+          wordpress:
+            admin_pass: { get_param: database_password }
+            user:
+              name: { get_param: username }
+              group: { get_param: username }
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[rax-wordpress::apache-prep]",
                    "recipe[rax-wordpress::x509]",
                    "recipe[php]",
                    "recipe[wordpress]",
+                   "recipe[rax-wordpress::user]",
                    "recipe[rax-wordpress::memcache]",
                    "recipe[varnish::apt_repo]",
                    "recipe[varnish]",
