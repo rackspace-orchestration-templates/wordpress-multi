@@ -567,6 +567,9 @@ resources:
           wordpress:
             admin_user: { get_param: username }
             admin_pass: { get_attr: [database_password, value] }
+            user:
+              name: { get_param: username }
+              group: { get_param: username }
         run_list: ["recipe[apt]",
                    "recipe[build-essential]",
                    "recipe[mysql::client]",
@@ -578,6 +581,7 @@ resources:
                    "recipe[rax-wordpress::wp-database]",
                    "recipe[wordpress]",
                    "recipe[rax-wordpress::wp-setup]",
+                   "recipe[rax-wordpress::user]",
                    "recipe[rax-wordpress::memcache]",
                    "recipe[lsyncd]",
                    "recipe[vsftpd]",
