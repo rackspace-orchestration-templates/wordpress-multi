@@ -526,6 +526,7 @@ resources:
         varnish:
           listen_port: "80"
         vsftpd:
+          ipaddress: ''
           write_enable: true
           local_umask: "002"
           chroot_local_user: false
