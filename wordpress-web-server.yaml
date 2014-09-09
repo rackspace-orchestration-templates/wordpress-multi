@@ -160,7 +160,7 @@ parameters:
   chef_version:
     description: Version of chef client to use
     type: string
-    default: 11.12.2
+    default: 11.16.0
 
   # parent stack id for metadata
   parent_stack_id:
