@@ -263,10 +263,10 @@ parameters:
     type: string
     default: wp_user
     constraints:
-    - allowed_pattern: "^(.){1,16}$"
+    - allowed_pattern: "^[a-zA-Z0-9 _.@-]{1,16}$"
       description: |
-        Must be shorter than 16 characters, this is due to MySQL's maximum
-        username length.
+        Must be shorter than 16 characters and may only contain alphanumeric
+        characters, ' ', '_', '.', '@', and/or '-'.
 
   ## The below parameters are for development purposes. Use the default
   ## settings for these parameters when attempting to deploy this stack.
