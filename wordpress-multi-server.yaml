@@ -561,7 +561,7 @@ resources:
             ssh:
               private_key: { get_attr: [sync_key, private_key] }
             clients: { get_attr: [wp_web_servers, privateIPv4] }
-          memcached:
+          memcache:
             server: { get_attr: [database_server, privateIPv4] }
           varnish:
             master_backend: "localhost"
