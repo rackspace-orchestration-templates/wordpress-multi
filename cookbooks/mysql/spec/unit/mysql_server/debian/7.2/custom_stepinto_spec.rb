@@ -8,6 +8,7 @@ describe 'stepped into mysql_test_custom::server on debian-7.2' do
       :version => '7.2'
       ) do |node|
       node.set['mysql']['service_name'] = 'debian_7_2_custom'
+      node.set['mysql']['version'] = '5.5'
       node.set['mysql']['port'] = '3308'
       node.set['mysql']['data_dir'] = '/data'
       node.set['mysql']['template_source'] = 'custom.erb'
@@ -75,8 +76,8 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'1.2.3.4/5' IDENTIFIED BY 'YUNOSETPASSWORD
         )
     end
 
-    it 'steps into mysql_service and installs package[mysql-server]' do
-      expect(debian_7_2_custom_run).to install_package('mysql-server')
+    it 'steps into mysql_service and installs package[mysql-server-5.5]' do
+      expect(debian_7_2_custom_run).to install_package('mysql-server-5.5')
     end
 
     it 'steps into mysql_service and creates service[mysql]' do

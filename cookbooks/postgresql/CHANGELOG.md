@@ -2,6 +2,30 @@ postgresql Cookbook CHANGELOG
 =============================
 This file is used to list changes made in each version of the postgresql cookbook.
 
+v3.4.6
+------
+- Don't include the pgdg recipes on the wrong machine types
+- Add missing dir /etc/sysconfig/pgsl for centos7
+- CentOS 7 package support
+
+v3.4.4
+------
+- fix packages on SLES11SP2 and higher
+- [COOK-4737] Add flag to control database user password behavior
+- add amazon platform rpm info
+- Fix issues with the server_redhat recipe on Fedora 16 and later
+- attribute typo correction
+- correctly check and set max_connections to an integer
+
+v3.4.2
+------
+- Changed the Gem::Installer::ExtensionBuildError to a Mixlib::ShellOut::ShellCommandFailed
+
+v3.4.1
+------
+- Added support for Ubuntu 14.04 and Postgresql 9.3
+- Fix [COOK-3490] https://tickets.opscode.com/browse/COOK-3490
+
 v3.4.0
 ------
 Updated CONTRIBUTING document.

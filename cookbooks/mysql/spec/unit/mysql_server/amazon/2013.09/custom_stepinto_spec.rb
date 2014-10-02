@@ -41,13 +41,13 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'1.2.3.4/5' IDENTIFIED BY 'YUNOSETPASSWORD
   context 'when using default parameters' do
     it 'creates mysql_service[amazon_2013_09_custom]' do
       expect(amazon_2013_09_custom_run).to create_mysql_service('amazon_2013_09_custom').with(
-        :version => '5.1',
-        :port => '3308',
-        :data_dir => '/data'
+        :parsed_version => '5.1',
+        :parsed_port => '3308',
+        :parsed_data_dir => '/data'
         )
     end
 
-    it 'steps into mysql_service and installs package[community-mysql-server]' do
+    it 'steps into mysql_service and installs package[mysql-server]' do
       expect(amazon_2013_09_custom_run).to install_package('mysql-server')
     end
 

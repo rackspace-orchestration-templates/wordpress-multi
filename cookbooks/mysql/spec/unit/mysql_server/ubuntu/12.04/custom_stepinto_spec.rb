@@ -41,9 +41,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'1.2.3.4/5' IDENTIFIED BY 'YUNOSETPASSWORD
   context 'when using default parameters' do
     it 'creates mysql_service[ubuntu_12_04_default]' do
       expect(ubuntu_12_04_custom_run).to create_mysql_service('ubuntu_12_04_default').with(
-        :version => '5.5',
-        :port => '3308',
-        :data_dir => '/data'
+        :parsed_version => '5.5',
+        :parsed_port => '3308',
+        :parsed_data_dir => '/data'
         )
     end
 
@@ -75,8 +75,8 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'1.2.3.4/5' IDENTIFIED BY 'YUNOSETPASSWORD
         )
     end
 
-    it 'steps into mysql_service and installs package[mysql-server]' do
-      expect(ubuntu_12_04_custom_run).to install_package('mysql-server')
+    it 'steps into mysql_service and installs package[mysql-server-5.5]' do
+      expect(ubuntu_12_04_custom_run).to install_package('mysql-server-5.5')
     end
 
     # apparmor

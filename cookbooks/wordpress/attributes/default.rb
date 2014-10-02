@@ -30,10 +30,17 @@ default['wordpress']['db']['user'] = "wordpressuser"
 default['wordpress']['db']['pass'] = nil
 default['wordpress']['db']['prefix'] = 'wp_'
 default['wordpress']['db']['host'] = 'localhost'
+default['wordpress']['db']['charset'] = 'utf8'
+default['wordpress']['db']['collate'] = ''
 
 default['wordpress']['allow_multisite'] = false
 
+default['wordpress']['config_perms'] = 0644
 default['wordpress']['server_aliases'] = [node['fqdn']]
+default['wordpress']['server_port'] = '80'
+
+default['wordpress']['install']['user'] = node['apache']['user']
+default['wordpress']['install']['group'] = node['apache']['group']
 
 # Languages
 default['wordpress']['languages']['lang'] = ''
@@ -68,3 +75,5 @@ else
   default['wordpress']['dir'] = "#{node['wordpress']['parent_dir']}/wordpress"
   default['wordpress']['url'] = "https://wordpress.org/wordpress-#{node['wordpress']['version']}.tar.gz"
 end
+
+default['wordpress']['php_options'] = { 'php_admin_value[upload_max_filesize]' => '50M', 'php_admin_value[post_max_size]' => '55M' }

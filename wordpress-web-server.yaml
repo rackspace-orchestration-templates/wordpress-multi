@@ -160,7 +160,7 @@ parameters:
   chef_version:
     description: Version of chef client to use
     type: string
-    default: 11.16.0
+    default: 11.16.2
 
   # parent stack id for metadata
   parent_stack_id:
@@ -196,6 +196,7 @@ resources:
           serversignature: "Off"
           traceenable: "Off"
         varnish:
+          version: "3.0"
           listen_port: "80"
         wordpress:
           version: { get_param: version }
@@ -241,7 +242,7 @@ resources:
                    "recipe[wordpress]",
                    "recipe[rax-wordpress::user]",
                    "recipe[rax-wordpress::memcache]",
-                   "recipe[varnish::apt_repo]",
+                   "recipe[varnish::repo]",
                    "recipe[varnish]",
                    "recipe[rax-wordpress::apache]",
                    "recipe[rax-wordpress::varnish]",

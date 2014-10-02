@@ -38,9 +38,9 @@ datadir                        = /var/lib/mysql
   context 'when using default parameters' do
     it 'creates mysql_service[ubuntu_12_04_default]' do
       expect(ubuntu_12_04_default_run).to create_mysql_service('ubuntu_12_04_default').with(
-        :version => '5.5',
-        :port => '3306',
-        :data_dir => '/var/lib/mysql'
+        :parsed_version => '5.5',
+        :parsed_port => '3306',
+        :parsed_data_dir => '/var/lib/mysql'
         )
     end
 
@@ -72,8 +72,8 @@ datadir                        = /var/lib/mysql
         )
     end
 
-    it 'steps into mysql_service and installs package[mysql-server]' do
-      expect(ubuntu_12_04_default_run).to install_package('mysql-server')
+    it 'steps into mysql_service and installs package[mysql-server-5.5]' do
+      expect(ubuntu_12_04_default_run).to install_package('mysql-server-5.5')
     end
 
     # apparmor

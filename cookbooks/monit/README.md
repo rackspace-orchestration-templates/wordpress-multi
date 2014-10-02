@@ -2,6 +2,15 @@
 Chef cookbook for the [monit](http://mmonit.com/monit/) monitoring and
 management tool.
 
+[![Build Status](https://travis-ci.org/apsoto/monit.svg?branch=master)](https://travis-ci.org/apsoto/monit)
+
+# Submitting a change #
+ * Make sure your code follows existing conventions
+ * Squash your PR into a single commit
+ * Rebase onto master if needed
+ * Add Chefspec test
+ * Make sure foodcritic is happy
+
 # How to add to your cookbook repository #
 
 ## Download the tarball ##

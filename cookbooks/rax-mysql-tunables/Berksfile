@@ -5,6 +5,4 @@ group :integration do
   cookbook 'build-essential'
 end
 
-cookbook 'mysql'
-
 metadata

@@ -282,7 +282,7 @@ parameters:
     label: Chef Version
     description: Version of chef client to use
     type: string
-    default: 11.16.0
+    default: 11.16.2
 
   child_template:
     label: Child Template
@@ -524,6 +524,7 @@ resources:
           values:
             fs.inotify.max_user_watches: 1000000
         varnish:
+          version: "3.0"
           listen_port: "80"
         vsftpd:
           ipaddress: ''
@@ -587,7 +588,7 @@ resources:
                    "recipe[lsyncd]",
                    "recipe[vsftpd]",
                    "recipe[rax-wordpress::vsftpd]",
-                   "recipe[varnish::apt_repo]",
+                   "recipe[varnish::repo]",
                    "recipe[varnish]",
                    "recipe[rax-wordpress::apache]",
                    "recipe[rax-wordpress::varnish]",
