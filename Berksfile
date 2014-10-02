@@ -25,8 +25,7 @@ cookbook 'monit',
   :git => 'https://github.com/apsoto/monit'
 cookbook 'hollandbackup',
   :git => 'https://github.com/brint/hollandbackup'
-cookbook 'varnish',
-  :git => 'https://github.com/opscode-cookbooks/varnish'
+cookbook 'varnish'
 cookbook 'lsyncd',
   :git => 'https://github.com/dgivens/chef-lsyncd/'
 cookbook 'rax-wordpress',
