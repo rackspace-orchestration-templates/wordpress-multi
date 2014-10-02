@@ -1,0 +1,121 @@
+<% unless
+    @mysql_binpath.nil? &&
+    @lock_method.nil? &&
+    @exclude_invalid_views.nil? &&
+    @dump_routines.nil? &&
+    @dump_events.nil? &&
+    @stop_slave.nil? &&
+    @bin_log_position.nil? &&
+    @flush_logs.nil? &&
+    @file_per_database.nil? &&
+    @additional_options.nil? &&
+    @extra_defaults.nil? &&
+    @estimate_method.nil?
+%>
+[mysqldump]
+<% unless @mysql_binpath.nil? %>
+mysql-binpath = <%= @mysql_binpath %>
+<% end %>
+<% unless @lock_method.nil? %>
+lock-method = <%= @lock_method %>
+<% end %>
+<% unless @exclude_invalid_views.nil? %>
+exclude-invalid-views = <%= @exclude_invalid_views %>
+<% end %>
+<% unless @dump_routines.nil? %>
+dump-routines = <%= @dump_routines %>
+<% end %>
+<% unless @dump_events.nil? %>
+dump-events = <%= @dump_events %>
+<% end %>
+<% unless @stop_slave.nil? %>
+stop-slave = <%= @stop_slave %>
+<% end %>
+<% unless @bin_log_position.nil? %>
+bin-log-position = <%= @bin_log_position %>
+<% end %>
+<% unless @flush_logs.nil? %>
+flush-logs = <%= @flush_logs %>
+<% end %>
+<% unless @file_per_database.nil? %>
+file-per-database = <%= @file_per_database %>
+<% end %>
+<% unless @additional_options.nil? %>
+additional-options = <%= @additional_options %>
+<% end %>
+<% unless @extra_defaults.nil? %>
+extra-defaults = <%= @extra_defaults %>
+<% end %>
+<% unless @estimate_method.nil? %>
+estimate-method = <%= @estimate_method %>
+<% end %>
+<% end %>
+<% unless
+    @databases.nil? &&
+    @exclude_databases.nil? &&
+    @tables.nil? &&
+    @exclude_tables.nil?
+%>
+# database and table filtering
+<% unless @databases.nil? %>
+databases = <%= @databases %>
+<% end %>
+<% unless @exclude_databases.nil? %>
+exclude-databases = <%= @exclude_databases %>
+<% end %>
+<% unless @tables.nil? %>
+tables = <%= @tables %>
+<% end %>
+<% unless @exclude_tables.nil? %>
+exclude-tables = <%= @exclude_tables %>
+<% end %>
+<% end %>
+<% unless
+    @method.nil? &&
+    @inline.nil? &&
+    @level.nil? &&
+    @bin_path.nil?
+%>
+[compression]
+<% unless @method.nil? %>
+method = <%= @method %>
+<% end %>
+<% unless @inline.nil? %>
+inline = <%= @inline %>
+<% end %>
+<% unless @level.nil? %>
+level = <%= @level %>
+<% end %>
+<% unless @bin_path.nil? %>
+bin-path = <%= @bin_path %>
+<% end %>
+<% end %>
+
+<% unless
+    @defaults_extra_file.nil? &&
+    @user.nil? &&
+    @password.nil? &&
+    @socket.nil? &&
+    @host.nil? &&
+    @port.nil?
+%>
+[mysql:client]
+<% unless @defaults_extra_file.nil? %>
+defaults-extra-file = <%= @defaults_extra_file %>
+<% end %>
+<% unless @user.nil? %>
+user = <%= @user %>
+<% end %>
+<% unless @password.nil? %>
+password = <%= @password %>
+<% end %>
+<% unless @socket.nil? %>
+socket = <%= @socket %>
+<% end %>
+<% unless @host.nil? %>
+host = <%= @host %>
+<% end %>
+<% unless @port.nil? %>
+port = <%= @port %>
+<% end %>
+<% end %>

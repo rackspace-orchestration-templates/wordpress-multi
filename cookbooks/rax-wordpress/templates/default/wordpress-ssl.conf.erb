@@ -1,0 +1,32 @@
+<VirtualHost _default_:443>
+    ServerName <%= @params[:server_name] %>
+    ServerAlias <% @params[:server_aliases].each do |a| %><%= "#{a}" %> <% end %>
+    DocumentRoot <%= @params[:docroot] %>
+
+    ErrorLog <%= node[:apache][:log_dir] %>/<%= @params[:server_name] %>-ssl-error.log
+    CustomLog <%= node[:apache][:log_dir] %>/<%= @params[:server_name] %>-ssl-access.log combined
+
+    LogLevel warn
+
+    SSLEngine on
+    SSLCertificateFile    <%= node[:rax][:apache][:ssl][:certpath] %>/<%= @params[:sslcert] %>
+    SSLCertificateKeyFile <%= node[:rax][:apache][:ssl][:keypath] %>/<%= @params[:sslkey] %>
+<%- if @params[:cacert] %>
+    SSLCACertificateFile <%= node[:rax][:apache][:ssl][:certpath] %>/<%= @params[:cacert] %>
+<%- end %>
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+        SSLOptions +StdEnvVars
+    </FilesMatch>
+
+    BrowserMatch "MSIE [2-6]" \
+        nokeepalive ssl-unclean-shutdown \
+        downgrade-1.0 force-response-1.0
+    BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1/
+    RequestHeader set X-Proxy-Proto "HTTPS"
+
+    # Include /var/www/vhosts/<%= @params[:server_name] %>/conf/*_ssl.conf
+
+</VirtualHost>

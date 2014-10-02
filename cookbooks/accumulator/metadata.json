@@ -1,0 +1,29 @@
+{
+  "name": "accumulator",
+  "description": "Installs/Configures accumulator",
+  "long_description": "",
+  "maintainer": "Mathieu Sauve-Frankel",
+  "maintainer_email": "msf@kisoku.net",
+  "license": "Apache 2.0",
+  "platforms": {
+  },
+  "dependencies": {
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+  },
+  "version": "0.2.0"
+}
