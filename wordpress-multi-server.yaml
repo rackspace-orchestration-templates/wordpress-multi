@@ -524,6 +524,7 @@ resources:
           values:
             fs.inotify.max_user_watches: 1000000
         varnish:
+          version: "3.0"
           listen_port: "80"
         vsftpd:
           ipaddress: ''

@@ -196,6 +196,7 @@ resources:
           serversignature: "Off"
           traceenable: "Off"
         varnish:
+          version: "3.0"
           listen_port: "80"
         wordpress:
           version: { get_param: version }
