@@ -241,7 +241,7 @@ resources:
                    "recipe[wordpress]",
                    "recipe[rax-wordpress::user]",
                    "recipe[rax-wordpress::memcache]",
-                   "recipe[varnish::apt_repo]",
+                   "recipe[varnish::repo]",
                    "recipe[varnish]",
                    "recipe[rax-wordpress::apache]",
                    "recipe[rax-wordpress::varnish]",
