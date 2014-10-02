@@ -6,7 +6,7 @@ from envassert import detect, file, package, port, process, service
 def mysql():
     env.platform_family = detect.detect()
 
-    packages = ["holland", "mysql-server"]
+    packages = ["holland", "mysql-server-5.5"]
     for pkg in packages:
         assert package.installed(pkg)
 
