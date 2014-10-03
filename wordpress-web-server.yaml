@@ -227,6 +227,8 @@ resources:
               pub: { get_param: lsync_pub }
           memcache:
             server: { get_param: memcached_host }
+          packages:
+            - php5-imagick
           varnish:
             master_backend: { get_param: varnish_master_backend }
           wordpress:
@@ -239,6 +241,7 @@ resources:
                    "recipe[rax-wordpress::apache-prep]",
                    "recipe[rax-wordpress::x509]",
                    "recipe[php]",
+                   "recipe[rax-install-packages]",
                    "recipe[wordpress]",
                    "recipe[rax-wordpress::user]",
                    "recipe[rax-wordpress::memcache]",

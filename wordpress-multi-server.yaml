@@ -566,6 +566,8 @@ resources:
             server: { get_attr: [database_server, privateIPv4] }
           varnish:
             master_backend: "localhost"
+          packages:
+            - php5-imagick
           wordpress:
             admin_user: { get_param: username }
             admin_pass: { get_attr: [database_password, value] }
@@ -580,6 +582,7 @@ resources:
                    "recipe[sysctl::attribute_driver]",
                    "recipe[rax-wordpress::x509]",
                    "recipe[php]",
+                   "recipe[rax-install-packages]",
                    "recipe[rax-wordpress::wp-database]",
                    "recipe[wordpress]",
                    "recipe[rax-wordpress::wp-setup]",
