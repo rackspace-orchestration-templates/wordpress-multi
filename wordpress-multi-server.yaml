@@ -125,14 +125,14 @@ parameters:
       Cloud Server size to use for the database server. Sizes refer to the
       amount of RAM allocated to the server.
     type: string
-    default: 4 GB Performance
+    default: 4 GB General Purpose v1
     constraints:
     - allowed_values:
-      - 2 GB Performance
-      - 4 GB Performance
-      - 8 GB Performance
-      - 15 GB Performance
-      - 30 GB Performance
+      - 2 GB General Purpose v1
+      - 4 GB General Purpose v1
+      - 8 GB General Purpose v1
+      - 15 GB I/O v1
+      - 30 GB I/O v1
       - 2GB Standard Instance
       - 4GB Standard Instance
       - 8GB Standard Instance
@@ -150,15 +150,15 @@ parameters:
       handles all admin calls and will ensure files are synced across all
       other nodes.
     type: string
-    default: 2 GB Performance
+    default: 2 GB General Purpose v1
     constraints:
     - allowed_values:
-      - 1 GB Performance
-      - 2 GB Performance
-      - 4 GB Performance
-      - 8 GB Performance
-      - 15 GB Performance
-      - 30 GB Performance
+      - 1 GB General Purpose v1
+      - 2 GB General Purpose v1
+      - 4 GB General Purpose v1
+      - 8 GB General Purpose v1
+      - 15 GB I/O v1
+      - 30 GB I/O v1
       - 1GB Standard Instance
       - 2GB Standard Instance
       - 4GB Standard Instance
@@ -174,15 +174,15 @@ parameters:
     description: |
       Cloud Server size to use on all of the additional web nodes.
     type: string
-    default: 2 GB Performance
+    default: 2 GB General Purpose v1
     constraints:
     - allowed_values:
-      - 1 GB Performance
-      - 2 GB Performance
-      - 4 GB Performance
-      - 8 GB Performance
-      - 15 GB Performance
-      - 30 GB Performance
+      - 1 GB General Purpose v1
+      - 2 GB General Purpose v1
+      - 4 GB General Purpose v1
+      - 8 GB General Purpose v1
+      - 15 GB I/O v1
+      - 30 GB I/O v1
       - 1GB Standard Instance
       - 2GB Standard Instance
       - 4GB Standard Instance
