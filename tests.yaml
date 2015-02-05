@@ -15,6 +15,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: database_server_ip } # Fetch from output-list of stack
             tasks:
+              - artifacts
               - mysql
               - memcached
             abort_on_prompts: True
@@ -29,6 +30,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: wordpress_web_ips }
             tasks:
+              - artifacts
               - apache
               - lsync_client
               - varnish
@@ -44,6 +46,7 @@ test-cases:
             key_filename: tmp/private_key
             hosts: { get_output: wordpress_web_master_ip }
             tasks:
+              - artifacts
               - apache
               - lsyncd
               - varnish
