@@ -1,6 +1,7 @@
 import os
 from fabric.api import env, task
 from envassert import detect, file, package, port, process, service, user
+from hot.utils.test import get_artifacts, http_check
 
 
 @task
@@ -45,3 +46,9 @@ def varnish():
     assert port.is_listening(80)
     assert file.has_line(varnish_config, "backend master")
     assert file.has_line(varnish_config, "backend local")
+
+
+@task
+def artifacts():
+    env.platform_family = detect.detect()
+    get_artifacts()
