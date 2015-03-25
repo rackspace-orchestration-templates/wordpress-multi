@@ -368,7 +368,7 @@ resources:
     properties:
       name: { get_param: load_balancer_hostname }
       nodes:
-      - addresses: [ { get_attr: [wp_master_server, privateIPv4] } ]
+      - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
         port: 80
         condition: ENABLED
       - addresses: { get_attr: [wp_web_servers, privateIPv4] }
@@ -392,7 +392,7 @@ resources:
         rax-heat: { get_param: "OS::stack_id" }
 
   database_server:
-    type: "Rackspace::Cloud::Server"
+    type: "OS::Nova::Server"
     properties:
       name: { get_param: database_server_hostname }
       flavor: { get_param: database_server_flavor }
@@ -402,7 +402,7 @@ resources:
         rax-heat: { get_param: "OS::stack_id" }
 
   wp_master_server:
-    type: "Rackspace::Cloud::Server"
+    type: "OS::Nova::Server"
     properties:
       name: { get_param: wp_master_server_hostname }
       flavor: { get_param: wp_master_server_flavor }
@@ -428,11 +428,11 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: { get_attr: [wp_master_server, privateIPv4] }
+          varnish_master_backend: { get_attr: [wp_master_server, networks, private, 0] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: { get_attr: [database_server, privateIPv4] }
-          memcached_host: { get_attr: [database_server, privateIPv4] }
+          database_host: { get_attr: [database_server, networks, private, 0] }
+          memcached_host: { get_attr: [database_server, networks, private, 0] }
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
@@ -466,9 +466,9 @@ resources:
               password: { get_attr: [mysql_root_password, value] }
         memcached:
           memory: 500
-          listen: { get_attr: [database_server, privateIPv4] }
+          listen: { get_attr: [database_server, networks, private, 0] }
         mysql:
-          bind_address: { get_attr: [database_server, privateIPv4] }
+          bind_address: { get_attr: [database_server, networks, private, 0] }
           server_root_password: { get_attr: [mysql_root_password, value] }
           server_repl_password: { get_attr: [mysql_repl_password, value] }
           server_debian_password: { get_attr: [mysql_debian_password, value] }
@@ -546,7 +546,7 @@ resources:
             name: { get_param: database_name }
             user: { get_param: username }
             pass: { get_attr: [database_password, value] }
-            host: { get_attr: [database_server, privateIPv4] }
+            host: { get_attr: [database_server, networks, private, 0] }
           keys:
             auth: { get_attr: [wp_auth, value] }
             logged_in: { get_attr: [wp_logged_in, value] }
@@ -563,7 +563,7 @@ resources:
               private_key: { get_attr: [sync_key, private_key] }
             clients: { get_attr: [wp_web_servers, privateIPv4] }
           memcache:
-            server: { get_attr: [database_server, privateIPv4] }
+            server: { get_attr: [database_server, networks, private, 0] }
           varnish:
             master_backend: "localhost"
           packages:
@@ -613,7 +613,7 @@ resources:
         rax:
           memcached:
             clients:
-            - { get_attr: [wp_master_server, privateIPv4] }
+            - { get_attr: [wp_master_server, networks, private, 0] }
             - { get_attr: [wp_web_servers, privateIPv4] }
         run_list: ["recipe[rax-wordpress::memcached-firewall]"]
 
