@@ -6,6 +6,12 @@ description: |
 parameters:
 
   # Server settings
+  
+  agent_config:
+    type: string
+    description: User data for installing and configuring monitoring agent
+    default: ""
+  
   wp_web_server_hostname:
     description: WordPress Web Server Name
     type: string
@@ -177,8 +183,51 @@ resources:
       flavor: { get_param: wp_web_server_flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
+      config_drive: true
+      user_data_format: RAW
+      user_data: { get_param: agent_config }
       metadata:
         rax-heat: { get_param: parent_stack_id }
+
+  node_cpu_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_web_server }
+      type: agent.cpu
+      label: node_cpu_check
+      details: {}
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
+
+  node_mem_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_web_server }
+      type: agent.memory
+      label: node_mem_check
+      details: {}
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
+
+  node_filesystem_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_web_server }
+      type: agent.filesystem
+      label: node_fs_check
+      details:
+        target: "/"
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
 
   wp_web_server_setup:
     type: "OS::Heat::ChefSolo"
