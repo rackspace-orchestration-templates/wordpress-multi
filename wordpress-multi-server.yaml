@@ -401,6 +401,27 @@ resources:
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
 
+  cloud_monitoring_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        str_replace:
+          template: |
+            #!/bin/bash
+            wget http://meta.packages.cloudmonitoring.rackspace.com/ubuntu-12.04-x86_64/rackspace-cloud-monitoring-meta-stable_1.0_all.deb
+            dpkg -i rackspace-cloud-monitoring-meta-stable_1.0_all.deb
+            apt-get update
+            apt-get install rackspace-monitoring-agent
+            echo "monitoring_token {{token}}" > /etc/rackspace-monitoring-agent.cfg
+            service rackspace-monitoring-agent restart
+          params:
+            "{{token}}": { get_resource: agent_token }
+  
+  agent_token:
+    type: Rackspace::CloudMonitoring::AgentToken
+    properties:
+      label: { get_param: "OS::stack_name" }
+
   wp_master_server:
     type: "OS::Nova::Server"
     properties:
@@ -408,8 +429,52 @@ resources:
       flavor: { get_param: wp_master_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
+      config_drive: true
+      user_data_format: RAW
+      user_data:
+        get_attr: [ cloud_monitoring_config, config ]
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+
+  master_cpu_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_master_server }
+      type: agent.cpu
+      label: master_cpu_check
+      details: {}
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
+
+  master_mem_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_master_server }
+      type: agent.memory
+      label: master_mem_check
+      details: {}
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
+
+  master_filesystem_check:
+    type: Rackspace::CloudMonitoring::Check
+    properties:
+      entity: { get_resource: wp_master_server }
+      type: agent.filesystem
+      label: master_fs_check
+      details:
+        target: "/"
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
+      period: 30
+      timeout: 10
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
@@ -419,6 +484,7 @@ resources:
       resource_def:
         type: { get_param: child_template }
         properties:
+          agent_config: { get_attr: [ cloud_monitoring_config, config ] }
           wp_web_server_hostname: { get_param: wp_web_server_hostnames }
           image: { get_param: image }
           wp_web_server_flavor: { get_param: wp_web_server_flavor }

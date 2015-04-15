@@ -47,6 +47,17 @@ def varnish():
     assert file.has_line(varnish_config, "backend master")
     assert file.has_line(varnish_config, "backend local")
 
+@task
+def monitoring():
+    env.platform_family = detect.detect()
+
+    monitor_config = "/etc/rackspace-monitoring-agent.cfg"
+
+    assert package.installed("rackspace-monitoring-agent")
+    assert process.is_up("rackspace-monitoring-agent")
+    assert service.is_enabled("rackspace-monitoring-agent")
+    assert file.exists(monitoring_config)
+
 
 @task
 def artifacts():
