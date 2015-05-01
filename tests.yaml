@@ -6,6 +6,10 @@ test-cases:
     ssh_private_key: { get_output: private_key } # Fetch from output-list of stack
     ssh_key_file: tmp/private_key # File to write with ssh_private_key
     tests:
+    - check_wp_version:
+        script:
+          commands:
+            - command: "python test/script/check_wp_version.py"
     - database_server:
         fabric:
           # Fabric environment settings to use while running envassert script
