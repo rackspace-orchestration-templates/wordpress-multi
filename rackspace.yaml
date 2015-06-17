@@ -1,7 +1,7 @@
 schema-version: 1.0.0
 application-family: CMS
 application-name: WordPress
-application-version: 3.9.2
+application-version: 4.2.2
 flavor: Multiple Linux servers
 flavor-weight: 1
 reach-info:
@@ -13,7 +13,7 @@ hidden_outputs:
   - wordpress_password
   - mysql_root_password
 abstract: |
-  Multiple [WordPress](http://wordpress.org/about/) v3.9.2 servers with
+  Multiple [WordPress](http://wordpress.org/about/) v4.2.2 servers with
   [lsyncd](https://code.google.com/p/lsyncd/),
   [vsftpd](https://security.appspot.com/vsftpd.html#about) and
   [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
