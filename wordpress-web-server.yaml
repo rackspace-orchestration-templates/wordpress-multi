@@ -6,12 +6,12 @@ description: |
 parameters:
 
   # Server settings
-  
+
   agent_config:
     type: string
     description: User data for installing and configuring monitoring agent
     default: ""
-  
+
   wp_web_server_hostname:
     description: WordPress Web Server Name
     type: string
@@ -64,7 +64,7 @@ parameters:
   version:
     description: Version of WordPress to install
     type: string
-    default: 3.9.1
+    default: 4.2.2
 
   # Optional Apache settings (SSL certs)
   # ssl_private_key:
