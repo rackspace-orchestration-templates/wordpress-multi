@@ -433,6 +433,10 @@ resources:
         packages:
           - git
           - mysql-client
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfteOr6DstoVq3BDDzktO+uT8Vjc/6c/lvUzTHU5ZRqfiHFOznt65LO9IN2Ar2gcBhnCkbNxL+qojyzWE5U7bN5mgPvK2TQIuK05ofKvnRDXx8sfg9IaxxiQbRhSsMF7qyXiI31S3J6fPPTVVbhzd6ONwLOs/DsKdmXcSmVeeH2wO+8C0plKBcYjgMMiTT+hhnRoIsfATNhaWjgBPwO/k2ldZdHsPdq7ltPPUcvxNy2PfDDKW6GC7tJOf56rDeCAyXg1YSyUvZgODRL8cfHTYzYN6BantdPjearRxUD6hRwES8RKMjwPSBJ1puqbM5XJJwZAdCrYCaXwX9f8yDIlCz
+        ssh_keys:
+          rsa_private: { get_attr: [ssh_key, private_key] }
         write_files:
         # Set salt-minion to only use local resources
           - path: /etc/salt/minion.d/local.conf
@@ -581,7 +585,7 @@ resources:
           name: { get_param: wp_web_server_hostnames }
           flavor: { get_param: wp_web_server_flavor }
           image: { get_param: image }
-          key_name: jgb-macbookair # { get_resource: ssh_key }
+          key_name: { get_resource: ssh_key }
           metadata:
             rax-heat: { get_param: "OS::stack_id" }
           config_drive: "true"
@@ -598,6 +602,10 @@ resources:
         packages:
           - git
           - mysql-client
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfteOr6DstoVq3BDDzktO+uT8Vjc/6c/lvUzTHU5ZRqfiHFOznt65LO9IN2Ar2gcBhnCkbNxL+qojyzWE5U7bN5mgPvK2TQIuK05ofKvnRDXx8sfg9IaxxiQbRhSsMF7qyXiI31S3J6fPPTVVbhzd6ONwLOs/DsKdmXcSmVeeH2wO+8C0plKBcYjgMMiTT+hhnRoIsfATNhaWjgBPwO/k2ldZdHsPdq7ltPPUcvxNy2PfDDKW6GC7tJOf56rDeCAyXg1YSyUvZgODRL8cfHTYzYN6BantdPjearRxUD6hRwES8RKMjwPSBJ1puqbM5XJJwZAdCrYCaXwX9f8yDIlCz
+        ssh_keys:
+          rsa_private: { get_attr: [ssh_key, private_key] }
         write_files:
         # Set salt-minion to only use local resources
           - path: /etc/salt/minion.d/local.conf
@@ -635,69 +643,52 @@ resources:
           - path: /srv/pillar/localhost.sls
             permissions: '0600'
             content:
-              str_replace:
-                template: |
-                  apache:
-                    disable_default_site: True
-                    http_port: %http_port%
-                    https_port: %https_port%
-                    vhosts:
-                      - domain: %url%
-                        docroot: %destination%/%public%
-                  lsyncd:
-                    targets: %secondary_ips%
-                  mysql:
-                    root_password: %mysql_root_password%
-                  mysql-database:
-                    name: %db_name%
-                  mysql-grant:
-                    user:  %wp_user%
-                    database: %db_name%
-                  mysql-user:
-                    user: %wp_user%
-                    pass: %database_password%
-                  users:
-                    %wp_user%:
-                      home: %destination%/%public%
-                      createhome: True
-                      user_dir_mode: 0775
-                      prime_group:
-                        name: www-data
-                  varnish:
-                    listen_port: %varnish_port%
-                  vsftpd:
-                    local_umask: 002
-                    additional_configuration:
-                      - "ssl_enable=YES"
-                      - "ssl_ciphers=HIGH"
-                      - "force_local_logins_ssl=NO"
-                      - "force_local_data_ssl=NO"
-                      - "pasv_min_port=%vsftpd_pasv_min_port%"
-                      - "pasv_max_port=%vsftpd_pasv_max_port%"
-                  wordpress:
-                    domain: %url%
-                    user: %wp_user%
-                    pass: %database_password%
-                    db_host: %db_host%
-                    db_name: %db_name%
-                    db_user: %wp_user%
-                    db_pass: %database_password%
-                    group_write: True
-                params:
-                  "%http_port%": 8080
-                  "%https_port%": 443
-                  "%url%": { get_param: domain }
-                  "%destination%": "/var/www/vhosts"
-                  "%public%": { get_param: domain }
-                  "%mysql_root_password%": { get_attr: [mysql_root_password, value] }
-                  "%db_name%": { get_param: database_name }
-                  "%db_host%": { get_attr: [database_server, hostname]}
-                  "%wp_user%": { get_param: username }
-                  "%database_password%": { get_attr: [database_password, value] }
-                  "%varnish_port%": 80
-                  "%vsftpd_pasv_min_port%": 10050
-                  "%vsftpd_pasv_max_port%": 10100
-                  "%secondary_ips%": blah
+              apache:
+                disable_default_site: True
+                http_port: 80
+                https_port: 443
+                vhosts:
+                  - domain: { get_param: domain }
+                    docroot: { "Fn::Join": [ "/", ["/var/www/vhosts", { get_param: domain }] ]  }
+              lsyncd:
+                targets: { get_attr: [wp_web_servers, accessIPv4] }
+              mysql:
+                root_password: { get_attr: [mysql_root_password, value] }
+              mysql-database:
+                name: { get_param: database_name }
+              mysql-grant:
+                user:  { get_param: username }
+                database: { get_param: database_name }
+              mysql-user:
+                user: { get_param: username }
+                pass: { get_attr: [database_password, value] }
+              users:
+                wp_user:
+                  home: { "Fn::Join": [ "/", ["/var/www/vhosts", { get_param: domain }] ]  }
+                  createhome: True
+                  user_dir_mode: 0775
+                  prime_group:
+                    name: www-data
+              varnish:
+                listen_port: 80
+              vsftpd:
+                local_umask: 002
+                additional_configuration:
+                  - "ssl_enable=YES"
+                  - "ssl_ciphers=HIGH"
+                  - "force_local_logins_ssl=NO"
+                  - "force_local_data_ssl=NO"
+                  - "pasv_min_port=10050"
+                  - "pasv_max_port=10100"
+              wordpress:
+                domain: { get_param: domain }
+                user: { get_param: username }
+                pass: { get_attr: [database_password, value] }
+                db_host: { get_attr: [database_server, hostname]}
+                db_name: { get_param: database_name }
+                db_user: { get_param: username }
+                db_pass: { get_attr: [database_password, value] }
+                group_write: True
         # Salt Bootstrap script
           - path: /tmp/heat/salt_run.sh
             permissions: '0500'
@@ -738,7 +729,7 @@ resources:
       name: { get_param: wp_master_server_hostname }
       flavor: { get_param: wp_master_server_flavor }
       image: { get_param: image }
-      key_name: jgb-macbookair # { get_resource: ssh_key }
+      key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
       config_drive: "true"
