@@ -570,7 +570,6 @@ resources:
   wait_condition_primary_handle:
     type: OS::Heat::SwiftSignalHandle
 
-
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
     depends_on: database_server
@@ -588,7 +587,7 @@ resources:
           mysql_root_password: { get_attr: [mysql_root_password, value] }
           database_name: { get_param: database_name }
           database_server: { get_attr: [database_server, hostname]}
-
+          database_password: { get_resource: database_password }
 
   wordpress_primary_cloud_init:
     depends_on: wp_web_servers
@@ -758,9 +757,9 @@ resources:
       - addresses: [ { get_attr: [wordpress_primary, networks, private, 0] } ]
         port: 80
         condition: ENABLED
-#      - addresses: { get_attr: [wp_web_servers, networks, private, 0] }
-#        port: 80
-#        condition: ENABLED
+      - addresses: { get_attr: [wp_web_servers, privateIPv4] }
+        port: 80
+        condition: ENABLED
       healthMonitor:
         type: HTTP
         delay: 10
@@ -777,7 +776,6 @@ resources:
         ipVersion: IPV4
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
-
 
   # Server resources
   # load_balancer:

@@ -101,17 +101,17 @@ parameters:
     description: "keypair name to register with Nova for the root SSH key"
     type: string
 
-  ssh_public_key:
-    type: string
+  #ssh_public_key:
+  #  type: string
 
-  ssh_private_key:
-    type: string
+  # ssh_private_key:
+  #  type: string
 
   # Lsync public key
-  lsync_pub:
-    description: Public key for lsync configuration
-    type: string
-    constraints:
+  #lsync_pub:
+  #  description: Public key for lsync configuration
+  #  type: string
+  #  constraints:
 
   # Varnish Master backend
   varnish_master_backend:
@@ -123,20 +123,20 @@ parameters:
     type: string
 
   # Random strings for WP salting
-  wp_auth:
-    type: string
+#  wp_auth:
+#    type: string
 
   mysql_root_password:
     type: string
 
-  wp_logged_in:
-    type: string
+#  wp_logged_in:
+#    type: string
 
-  wp_nonce:
-    type: string
+#  wp_nonce:
+#    type: string
 
-  wp_secure_auth:
-    type: string
+#  wp_secure_auth:
+#    type: string
 
   # Chef configuration options
   kitchen:
