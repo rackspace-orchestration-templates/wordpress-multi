@@ -324,7 +324,7 @@ parameters:
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
-    default: https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
+    default: http://drop.duncancreek.net/wordpress-web-server.yaml #  https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
 
 resources:
   # Random password generation
@@ -422,8 +422,6 @@ resources:
       - name: { get_param: username }
         password: { get_resource: database_password }
         databases: [ { get_param: database_name } ]
-
-
 
   wordpress_secondaries_cloud_init:
     type: OS::Heat::CloudConfig
@@ -579,17 +577,17 @@ resources:
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
-        type: "OS::Nova::Server"
+        type: "http://drop.duncancreek.net/wordpress-web-server.yaml"
         properties:
-          name: { get_param: wp_web_server_hostnames }
-          flavor: { get_param: wp_web_server_flavor }
+          wp_web_server_hostnames: { get_param: wp_web_server_hostnames }
+          wp_web_server_flavor: { get_param: wp_web_server_flavor }
           image: { get_param: image }
-          key_name: { get_resource: ssh_key }
-          metadata:
-            rax-heat: { get_param: "OS::stack_id" }
-          config_drive: "true"
-          user_data_format: RAW
-          user_data: { get_resource: wordpress_secondaries_cloud_init }
+          ssh_keypair_name: { get_resource: ssh_key }
+          wait_condition_handle_secondaries_curl_cli: { get_attr: ['wait_condition_handle_secondaries', 'curl_cli'] }
+          domain: { get_param: domain }
+          mysql_root_password: { get_attr: [mysql_root_password, value] }
+          database_name: { get_param: database_name }
+          database_server: { get_attr: [database_server, hostname]}
 
 
   wordpress_primary_cloud_init:

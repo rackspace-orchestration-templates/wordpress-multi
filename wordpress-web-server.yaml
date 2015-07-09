@@ -12,7 +12,7 @@ parameters:
     description: User data for installing and configuring monitoring agent
     default: ""
 
-  wp_web_server_hostname:
+  wp_web_server_hostnames:
     description: WordPress Web Server Name
     type: string
     default: WordPress-Web
@@ -27,10 +27,10 @@ parameters:
   image:
     description: Server Image used for all servers.
     type: string
-    default: Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+    default: Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
     constraints:
     - allowed_values:
-      - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+      - Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
       description: Must be a supported operating system.
 
   wp_web_server_flavor:
@@ -66,31 +66,6 @@ parameters:
     type: string
     default: 4.2.2
 
-  # Optional Apache settings (SSL certs)
-  # ssl_private_key:
-  #  description: Private SSL key
-  #  type: string
-  #  default: ""
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Key values must be under 5,000 characters"
-
-  # ssl_certificate:
-  #  description: Public SSL key
-  #  type: string
-  #  default: ""
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Certificate values must be under 5,000 characters"
-
-  # ssl_intermediate_certs:
-  #  description: Intermediate SSL Certificates
-  #  type: string
-  #  default: ""
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Intermediate values must be under 5,000 characters."
-
   # Database and system user configuration
   prefix:
     description: Prefix to use for
@@ -102,7 +77,7 @@ parameters:
     type: string
     default: wordpress
 
-  database_host:
+  database_server:
     description: IP/Host of the database server
     type: string
     default: 127.0.0.1
@@ -144,8 +119,14 @@ parameters:
     type: string
     default: "localhost"
 
+  wait_condition_handle_secondaries_curl_cli:
+    type: string
+
   # Random strings for WP salting
   wp_auth:
+    type: string
+
+  mysql_root_password:
     type: string
 
   wp_logged_in:
@@ -176,130 +157,155 @@ parameters:
 
 resources:
 
+  wordpress_secondaries_cloud_init:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        package_update: true
+        packages:
+          - git
+          - mysql-client
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCfteOr6DstoVq3BDDzktO+uT8Vjc/6c/lvUzTHU5ZRqfiHFOznt65LO9IN2Ar2gcBhnCkbNxL+qojyzWE5U7bN5mgPvK2TQIuK05ofKvnRDXx8sfg9IaxxiQbRhSsMF7qyXiI31S3J6fPPTVVbhzd6ONwLOs/DsKdmXcSmVeeH2wO+8C0plKBcYjgMMiTT+hhnRoIsfATNhaWjgBPwO/k2ldZdHsPdq7ltPPUcvxNy2PfDDKW6GC7tJOf56rDeCAyXg1YSyUvZgODRL8cfHTYzYN6BantdPjearRxUD6hRwES8RKMjwPSBJ1puqbM5XJJwZAdCrYCaXwX9f8yDIlCz
+        write_files:
+        # Set salt-minion to only use local resources
+          - path: /etc/salt/minion.d/local.conf
+            permissions: '0644'
+            content: |
+              file_client: local
+              mysql.default_file: '/etc/mysql/debian.cnf'
+        # Write out Pillar top.sls
+          - path: /srv/pillar/top.sls
+            permissions: '0600'
+            content: |
+              base:
+                '*':
+                  - localhost
+        # Write out State top.sls
+          - path: /srv/salt/top.sls
+            permissions: '0644'
+            content: |
+              base:
+                '*':
+                  - salt-minion
+                  - apache
+                  - memcached
+                  - php
+                  - varnish
+                  - wordpress
+                  - users
+                  - vsftpd
+        # Example Pillar Data using %value% notation
+        # See example pillar data from states repository.
+          - path: /srv/pillar/localhost.sls
+            permissions: '0600'
+            content:
+              str_replace:
+                template: |
+                  apache:
+                    disable_default_site: True
+                    http_port: %http_port%
+                    https_port: %https_port%
+                    vhosts:
+                      - domain: %url%
+                        docroot: %destination%/%public%
+                  mysql:
+                    root_password: %mysql_root_password%
+                  mysql-database:
+                    name: %db_name%
+                  mysql-grant:
+                    user:  %wp_user%
+                    database: %db_name%
+                  mysql-user:
+                    user: %wp_user%
+                    pass: %database_password%
+                  users:
+                    %wp_user%:
+                      home: %destination%/%public%
+                      createhome: True
+                      user_dir_mode: 0775
+                      prime_group:
+                        name: www-data
+                  varnish:
+                    listen_port: %varnish_port%
+                  vsftpd:
+                    local_umask: 002
+                    additional_configuration:
+                      - "ssl_enable=YES"
+                      - "ssl_ciphers=HIGH"
+                      - "force_local_logins_ssl=NO"
+                      - "force_local_data_ssl=NO"
+                      - "pasv_min_port=%vsftpd_pasv_min_port%"
+                      - "pasv_max_port=%vsftpd_pasv_max_port%"
+                  wordpress:
+                    domain: %url%
+                    user: %wp_user%
+                    pass: %database_password%
+                    db_host: %db_host%
+                    db_name: %db_name%
+                    db_user: %wp_user%
+                    db_pass: %database_password%
+                    group_write: True
+                    primary_server_ip: 192.168.0.0
+                params:
+                  "%http_port%": 8080
+                  "%https_port%": 443
+                  "%url%": { get_param: domain }
+                  "%destination%": "/var/www/vhosts"
+                  "%public%": { get_param: domain }
+                  "%mysql_root_password%": { get_param: mysql_root_password }
+                  "%db_name%": { get_param: database_name }
+                  "%db_host%": { get_param: database_server }
+                  "%wp_user%": { get_param: username }
+                  "%database_password%": { get_param: database_password }
+                  "%varnish_port%": 80
+                  "%vsftpd_pasv_min_port%": 10050
+                  "%vsftpd_pasv_max_port%": 10100
+        # Salt Bootstrap script
+          - path: /tmp/heat/salt_run.sh
+            permissions: '0500'
+            content:
+              str_replace:
+                template: |
+                  #!/bin/bash
+                  # Install salt-minion using Salt Bootstrap
+                  curl -L https://bootstrap.saltstack.com | sudo sh -s --
+                  salt-minion --versions
+                  # Clone down States
+                  mkdir -p /tmp/heat/states
+                  git clone https://github.com/rackspace-orchestration-templates/salt-states.git /tmp/heat/states
+                  cp -nr /tmp/heat/states/* /srv/salt/
+                  # Run local highstate
+                  salt-call --local state.highstate
+                  # Open and Enable ufw
+                  ufw allow %https_port%
+                  ufw allow %varnish_port%
+                  ufw allow 22
+                  ufw allow 21
+                  ufw allow proto tcp to any port %vsftpd_pasv_min_port%:%vsftpd_pasv_max_port%
+                  ufw --force enable
+                  wc_notify --data-binary '{"status": "SUCCESS"}'
+                params:
+                  wc_notify: { get_param: wait_condition_handle_secondaries_curl_cli }
+                  "%https_port%": 443
+                  "%varnish_port%": 80
+                  "%vsftpd_pasv_min_port%": 10050
+                  "%vsftpd_pasv_max_port%": 10100
+        runcmd:
+          - /tmp/heat/salt_run.sh
+
   wp_web_server:
     type: "OS::Nova::Server"
     properties:
-      name: { get_param: wp_web_server_hostname }
+      name: { get_param: wp_web_server_hostnames }
       flavor: { get_param: wp_web_server_flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
-      config_drive: true
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+      config_drive: "true"
       user_data_format: RAW
-      user_data: { get_param: agent_config }
-      metadata:
-        rax-heat: { get_param: parent_stack_id }
-
-  node_cpu_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.cpu
-      label: node_cpu_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  node_mem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.memory
-      label: node_mem_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  node_filesystem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.filesystem
-      label: node_fs_check
-      details:
-        target: "/"
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  wp_web_server_setup:
-    type: "OS::Heat::ChefSolo"
-    depends_on: wp_web_server
-    properties:
-      username: root
-      private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        apache:
-          listen_ports: [8080]
-          timeout: 30
-          serversignature: "Off"
-          traceenable: "Off"
-        varnish:
-          version: "3.0"
-          listen_port: "80"
-        wordpress:
-          version: { get_param: version }
-          server_aliases: [{ get_param: domain }]
-          dir:
-            str_replace:
-              template: "/var/www/vhosts/%domain%"
-              params:
-                "%domain%": { get_param: domain }
-          db:
-            name: { get_param: database_name }
-            user: { get_param: username }
-            pass: { get_param: database_password }
-            host: { get_param: database_host }
-          keys:
-            auth: { get_param: wp_auth }
-            logged_in: { get_param: wp_logged_in }
-            nonce_key: { get_param: wp_nonce }
-            secure_auth_key: { get_param: wp_secure_auth }
-        rax:
-          apache:
-            domain: { get_param: domain }
-            # ssl_private_key: { get_param: ssl_private_key }
-            # ssl_certificate: { get_param: ssl_certificate }
-            # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
-          lsyncd:
-            ssh:
-              pub: { get_param: lsync_pub }
-          memcache:
-            server: { get_param: memcached_host }
-          packages:
-            - php5-imagick
-          varnish:
-            master_backend: { get_param: varnish_master_backend }
-          wordpress:
-            admin_pass: { get_param: database_password }
-            user:
-              name: { get_param: username }
-              group: { get_param: username }
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]",
-                   "recipe[rax-wordpress::apache-prep]",
-                   "recipe[rax-wordpress::x509]",
-                   "recipe[php]",
-                   "recipe[rax-install-packages]",
-                   "recipe[wordpress]",
-                   "recipe[rax-wordpress::user]",
-                   "recipe[rax-wordpress::memcache]",
-                   "recipe[varnish::repo]",
-                   "recipe[varnish]",
-                   "recipe[rax-wordpress::apache]",
-                   "recipe[rax-wordpress::varnish]",
-                   "recipe[rax-wordpress::firewall]",
-                   "recipe[rax-wordpress::lsyncd-client]"]
+      user_data: { get_resource: wordpress_secondaries_cloud_init }
 
 outputs:
   accessIPv4:
