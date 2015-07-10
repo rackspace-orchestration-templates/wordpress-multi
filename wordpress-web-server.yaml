@@ -101,18 +101,6 @@ parameters:
     description: "keypair name to register with Nova for the root SSH key"
     type: string
 
-  #ssh_public_key:
-  #  type: string
-
-  # ssh_private_key:
-  #  type: string
-
-  # Lsync public key
-  #lsync_pub:
-  #  description: Public key for lsync configuration
-  #  type: string
-  #  constraints:
-
   # Varnish Master backend
   varnish_master_backend:
     description: Master backend host for admin calls in Varnish
@@ -122,23 +110,9 @@ parameters:
   wait_condition_handle_secondaries_curl_cli:
     type: string
 
-  # Random strings for WP salting
-#  wp_auth:
-#    type: string
-
   mysql_root_password:
     type: string
 
-#  wp_logged_in:
-#    type: string
-
-#  wp_nonce:
-#    type: string
-
-#  wp_secure_auth:
-#    type: string
-
-  # Chef configuration options
   kitchen:
     description: URL for the kitchen to use
     type: string
@@ -246,7 +220,7 @@ resources:
                     db_user: %wp_user%
                     db_pass: %database_password%
                     group_write: True
-                    primary_server_ip: 192.168.0.0
+                    varnish_master_host: 192.168.168.168
                 params:
                   "%http_port%": 8080
                   "%https_port%": 443
