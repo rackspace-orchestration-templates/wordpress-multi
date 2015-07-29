@@ -125,3 +125,10 @@ instructions: |
   as well as [Windows using
   PuTTY](http://www.rackspace.com/knowledge_center/article/logging-in-with-a-ssh-private-key-on-windows).
 user-input-required: true
+description: |
+  Multiple [WordPress](https://wordpress.org/about) v3.9.2 servers with
+  [lsyncd](https://code.google.com/p/lsyncd/),
+  [vsftpd](https://security.appspot.com/vsftpd.html#about) and
+  [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
+  The database will be hosted on a Linux server with
+  [MySQL 5.5](http://www.mysql.com/about/).
