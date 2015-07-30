@@ -13,12 +13,8 @@ hidden_outputs:
   - wordpress_password
   - mysql_root_password
 abstract: |
-  Multiple [WordPress](http://wordpress.org/about/) v4.2.2 servers with
-  [lsyncd](https://code.google.com/p/lsyncd/),
-  [vsftpd](https://security.appspot.com/vsftpd.html#about) and
-  [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
-  The database will be hosted on a Linux server with [MySQL
-  5.5](http://www.mysql.com/about/).
+  WordPress is a flexible, powerful and open-source content management system
+  written in PHP.
 instructions: |
   #### Getting Started
   If you're new to WordPress, the [First Steps With
