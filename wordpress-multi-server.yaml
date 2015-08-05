@@ -1,8 +1,14 @@
 heat_template_version: 2013-05-23
 
 description: |
-  This is a Heat template to deploy Load Balanced WordPress servers with a
-  backend database server.
+  #### Multiple Servers
+
+  Multiple [WordPress](https://wordpress.org/about) v3.9.2 servers with
+  [lsyncd](https://code.google.com/p/lsyncd/),
+  [vsftpd](https://security.appspot.com/vsftpd.html#about) and
+  [Varnish](https://www.varnish-cache.org/about) behind a Cloud Load Balancer.
+  The database will be hosted on a Linux server with
+  [MySQL 5.5](http://www.mysql.com/about/).
 
 parameter_groups:
 
