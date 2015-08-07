@@ -282,7 +282,7 @@ parameters:
     description: |
       URL for the kitchen to use, fetched using git
     type: string
-    default: https://github.com/rackspace-orchestration-templates/wordpress-multi
+    default: https://github.com/dragorosson/wordpress-multi
 
   chef_version:
     label: Chef Version

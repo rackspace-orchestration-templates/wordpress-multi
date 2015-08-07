@@ -49,6 +49,11 @@ execute 'Setup the various WordPress file system permissions' do
   #{node['rax']['wordpress']['user']['name']}:#{node['rax']['wordpress']['user']['group']} \
   #{node['wordpress']['dir']}
 
+  # Give permissions to the top-level directory WordPress install to the apache user
+  chown \
+  #{node['apache']['user']}:#{node['apache']['group']} \
+  #{node['wordpress']['dir']}
+
   # Make WordPress config file writable for the web server
   chown \
   #{node['rax']['wordpress']['user']['name']}:#{node['rax']['wordpress']['user']['group']} \
