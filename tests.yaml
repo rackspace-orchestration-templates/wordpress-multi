@@ -10,23 +10,6 @@ test-cases:
         script:
           commands:
             - command: "python test/script/check_wp_version.py"
-    - database_server:
-        fabric:
-          # Fabric environment settings to use while running envassert script
-          # http://docs.fabfile.org/en/latest/usage/env.html
-          env:
-            user: root
-            key_filename: tmp/private_key
-            hosts: { get_output: database_server_ip } # Fetch from output-list of stack
-            tasks:
-              - artifacts
-              - mysql
-              - memcached
-            abort_on_prompts: True
-            connection_attempts: 3
-            disable_known_hosts: True
-            use_ssh_config: True
-            fabfile: test/fabric/database.py # Path to envassert test
     - web_servers:
         fabric:
           env:
@@ -36,7 +19,6 @@ test-cases:
             tasks:
               - artifacts
               - apache
-              - lsync_client
               - varnish
             abort_on_prompts: True
             connection_attempts: 3
