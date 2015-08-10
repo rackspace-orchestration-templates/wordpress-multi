@@ -3,7 +3,7 @@
 Description
 ===========
 
-This is a template for deploying a [WordPress](http://wordpress.org/) across
+foo This is a template for deploying a [WordPress](http://wordpress.org/) across
 multiple servers. By default, this template will create a Cloud Load Balancer,
 a database server, an admin/master node, and a web node. Content will be kept
 in sync across the admin/master node and the remaining nodes leveraging lsyncd.
