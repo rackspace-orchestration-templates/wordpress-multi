@@ -213,10 +213,10 @@ parameters:
     label: WordPress Version
     description: Version of WordPress to install
     type: string
-    default: "4.2.2"
+    default: "4.2.4"
     constraints:
     - allowed_values:
-      - "4.2.2"
+      - "4.2.4"
 
   # Optional Apache settings (SSL certs)
   # ssl_private_key:
