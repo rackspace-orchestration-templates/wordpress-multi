@@ -721,3 +721,4 @@ outputs:
   mysql_root_password:
     value: { get_attr: [mysql_root_password, value] }
     description: MySQL Root Password
+
