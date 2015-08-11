@@ -22,7 +22,9 @@ def lsyncd():
     env.platform_family = detect.detect()
 
     wordpress_user = "wp_user"
+    web_user = "www-data"
     web_group = "www-data"
+    www_dir = "/var/www/vhosts/example.com"
     ssh_dir = "/var/www/vhosts/example.com/.ssh"
     private_key = os.path.join(ssh_dir, "id_rsa")
 
@@ -35,6 +37,7 @@ def lsyncd():
     assert file.owner_is(ssh_dir, wordpress_user)
     assert file.owner_is(private_key, wordpress_user)
     assert file.mode_is(private_key, 600)
+    assert file.owner_is(www_dir, web_user)
 
 
 @task
