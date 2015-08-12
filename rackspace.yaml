@@ -66,12 +66,6 @@ instructions: |
   This deployment was stood up using
   [chef-solo](http://docs.opscode.com/chef_solo.html). Once the deployment is
   up, chef will not run again, so it is safe to modify configurations.
-  <!---
-  A system user of 'wp_user' or the username you provided as a part of your
-  deployment has been created with the same password as your WordPress user.
-  This user can be used to SCP, SFTP, or FTP content over to your site. We
-  recommend using SCP or any encrypted protocol. Clear text protocols such as
-  FTP could inadvertently expose your user credentials. --->
 
   WordPress itself was installed using [WP-CLI](http://wp-cli.org/). WordPress
   is installed in /var/www/vhosts/YOUR DOMAIN/ and served by
