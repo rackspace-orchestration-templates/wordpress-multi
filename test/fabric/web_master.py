@@ -9,12 +9,15 @@ def apache():
     env.platform_family = detect.detect()
 
     apache_config = "/etc/apache2/sites-enabled/wordpress.conf"
+    web_user = "www-data"
+    www_dir = "/var/www/vhosts/example.com"
 
     assert package.installed("apache2")
     assert process.is_up("apache2")
     assert service.is_enabled("apache2")
     assert port.is_listening(8080)
     assert file.has_line(apache_config, "VirtualHost *:8080")
+    assert file.owner_is(www_dir, web_user)
 
 
 @task
