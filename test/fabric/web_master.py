@@ -29,16 +29,16 @@ def lsyncd():
     ssh_dir = "/var/www/vhosts/example.com/.ssh"
     private_key = os.path.join(ssh_dir, "id_rsa")
 
-    assert package.installed("lsyncd")
-    assert process.is_up("lsyncd")
-    assert service.is_enabled("lsyncd")
-    assert user.exists(wordpress_user)
+    assert package.installed("lsyncd"), 'lsyncd is not installed'
+    assert process.is_up("lsyncd"), 'lsyncd is not up'
+    assert service.is_enabled("lsyncd"), 'lsyncd is not enabled'
+    assert user.exists(wordpress_user), 'wp_user user does not exist'
     assert user.exists('wp_user').get('passwd') != '!', 'wp_user pass missing'
-    assert user.is_belonging_group(wordpress_user, web_group)
-    assert file.dir_exists(ssh_dir)
-    assert file.owner_is(ssh_dir, wordpress_user)
-    assert file.owner_is(private_key, wordpress_user)
-    assert file.mode_is(private_key, 600)
+    assert user.is_belonging_group(wordpress_user, web_group), 'wp_user does belong to correct group'
+    assert file.dir_exists(ssh_dir), 'ssh directory does not exist'
+    assert file.owner_is(ssh_dir, wordpress_user), 'wp_user does not own ssh directory'
+    assert file.owner_is(private_key, wordpress_user), 'wp_user does not own ssh key'
+    assert file.mode_is(private_key, 600), 'ssh key is not set to correct mode'
 
 
 @task
