@@ -33,6 +33,7 @@ def lsyncd():
     assert process.is_up("lsyncd")
     assert service.is_enabled("lsyncd")
     assert user.exists(wordpress_user)
+    assert user.exists('wp_user').get('passwd') != '!', 'wp_user pass missing'
     assert user.is_belonging_group(wordpress_user, web_group)
     assert file.dir_exists(ssh_dir)
     assert file.owner_is(ssh_dir, wordpress_user)
