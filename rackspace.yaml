@@ -4,6 +4,7 @@ application-name: WordPress
 application-version: 4.2.2
 flavor: Multiple Linux servers
 flavor-weight: 1
+popularity: 2
 reach-info:
   tattoo: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-tattoo.png
   icon-20x20: https://0b5294b243620310a700-e388a7f3aba385a925111b1fc6f680d4.ssl.cf2.rackcdn.com/wordpress-icon-20x20.png
