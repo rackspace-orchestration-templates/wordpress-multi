@@ -1,4 +1,5 @@
 import os
+from retrying import retry
 from fabric.api import env, task
 from envassert import detect, file, package, port, process, service, user
 from hot.utils.test import get_artifacts
@@ -20,6 +21,11 @@ def apache():
     assert file.owner_is(www_dir, web_user)
 
 
+@retry(stop_max_attempt_number=5, wait_fixed=1000)
+def check_lsync_up():
+  assert process.is_up("lsyncd"), 'lsyncd is not up'
+
+
 @task
 def lsyncd():
     env.platform_family = detect.detect()
@@ -30,7 +36,7 @@ def lsyncd():
     private_key = os.path.join(ssh_dir, "id_rsa")
 
     assert package.installed("lsyncd"), 'lsyncd is not installed'
-    assert process.is_up("lsyncd"), 'lsyncd is not up'
+    check_lsync_up()
     assert service.is_enabled("lsyncd"), 'lsyncd is not enabled'
     assert user.exists(wordpress_user), 'wp_user user does not exist'
     assert user.exists('wp_user').get('passwd') != '!', 'wp_user pass missing'
