@@ -2,4 +2,5 @@ hot
 git+https://github.com/heat-tools/envshuffle
 git+https://github.com/heat-tools/bumper
 git+https://github.com/sigmavirus24/github3.py.git
+retrying
 colorama
