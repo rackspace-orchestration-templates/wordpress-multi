@@ -1,5 +1,5 @@
 import os
-import retry
+from retrying import retry
 from fabric.api import env, task
 from envassert import detect, file, package, port, process, service, user
 from hot.utils.test import get_artifacts
