@@ -372,7 +372,11 @@ resources:
     - wp_master_server_setup
     - wp_web_servers
     properties:
-      name: { get_param: load_balancer_hostname }
+      name: str_replace:
+         template: "%domain%-%load_balancer_hostname%"
+         params:
+           %domain%: { get_param: domain }
+           %load_balancer_hostname%: { get_param: load_balancer_hostname }
       nodes:
       - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
         port: 80
@@ -400,7 +404,11 @@ resources:
   database_server:
     type: "OS::Nova::Server"
     properties:
-      name: { get_param: database_server_hostname }
+      name: str_replace:
+         template: "%domain%-%database_server_hostname%"
+         params:
+           %domain%: { get_param: domain }
+           %database_server_hostname%: { get_param: database_server_hostname }
       flavor: { get_param: database_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
@@ -431,7 +439,11 @@ resources:
   wp_master_server:
     type: "OS::Nova::Server"
     properties:
-      name: { get_param: wp_master_server_hostname }
+      name: str_replace:
+         template: "%domain%-%wp_master_server_hostname%"
+         params:
+           %domain%: { get_param: domain }
+           %wp_master_server_hostname%: { get_param: wp_master_server_hostname }
       flavor: { get_param: wp_master_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }

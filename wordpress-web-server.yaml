@@ -179,7 +179,11 @@ resources:
   wp_web_server:
     type: "OS::Nova::Server"
     properties:
-      name: { get_param: wp_web_server_hostname }
+      name: str_replace:
+         template: "%domain%-%wp_web_server_hostname%"
+         params:
+           %domain%: { get_param: domain }
+           %wp_web_server_hostname%: { get_param: wp_web_server_hostname}
       flavor: { get_param: wp_web_server_flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
