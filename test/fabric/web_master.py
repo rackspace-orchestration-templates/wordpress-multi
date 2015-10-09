@@ -21,7 +21,7 @@ def apache():
     assert file.owner_is(www_dir, web_user)
 
 
-@retry(stop_max_attempt_number=5, wait_fixed=1000)
+@retry(stop_max_attempt_number=10, wait_fixed=1000)
 def check_lsync_up():
   assert process.is_up("lsyncd"), 'lsyncd is not up'
 
