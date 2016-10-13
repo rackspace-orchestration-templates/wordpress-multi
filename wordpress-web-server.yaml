@@ -161,7 +161,7 @@ parameters:
   kitchen:
     description: URL for the kitchen to use
     type: string
-    default: https://github.com/rackspace-orchestration-templates/wordpress-multi
+    default: https://github.com/jidar/wordpress-multi
 
   chef_version:
     description: Version of chef client to use
@@ -171,6 +171,11 @@ parameters:
   # parent stack id for metadata
   parent_stack_id:
     description: Stack id of the parent stack
+    type: string
+    default: "none"
+
+  parent_private_net:
+    description: Private network provided by master template
     type: string
     default: "none"
 
@@ -188,6 +193,9 @@ resources:
       user_data: { get_param: agent_config }
       metadata:
         rax-heat: { get_param: parent_stack_id }
+      networks:
+        - network: { get_param: parent_private_net }
+        - network: 11111111-1111-1111-1111-111111111111
 
   node_cpu_check:
     type: Rackspace::CloudMonitoring::Check
