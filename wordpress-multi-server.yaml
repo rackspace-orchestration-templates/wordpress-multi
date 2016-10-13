@@ -320,7 +320,7 @@ parameters:
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
-    default: https://raw.githubusercontent.com/jidar/wordpress-multi/master/wordpress-multi-server.yaml
+    default: https://raw.githubusercontent.com/jidar/wordpress-multi/master/wordpress-web-server.yaml
 
 resources:
 
@@ -564,6 +564,7 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
+          parent_private_net: { get_resource: isolated_network }
 
   # Chef resources
   database_server_setup:
