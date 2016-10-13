@@ -10,44 +10,69 @@ description: |
   The database will be hosted on a Linux server with
   [MySQL 5.5](http://www.mysql.com/about/).
 
-parameter_groups:
-
-- label: Server Settings
-  parameters:
-  - image
-
-- label: Web Server Settings
-  parameters:
-  - wp_master_server_flavor
-  - wp_web_server_count
-  - wp_web_server_flavor
-
-- label: Database Settings
-  parameters:
-  - database_server_flavor
-
-- label: WordPress Settings
-  parameters:
-  - domain
-  - username
-
-- label: rax-dev-params
-  # These are parameters that will not be displayed in the portal. The purpose
-  # of these parameters are for users who are developing or testing newer or
-  # different setups. If any of these parameters are changed, there is a good
-  # chance this stack will fail to properly deploy.
-  parameters:
-  - kitchen
-  - chef_version
-  - child_template
-  - version
-  - prefix
-  - load_balancer_hostname
-  - wp_web_server_hostnames
-  - wp_master_server_hostname
-  - database_server_hostname
+# parameter_groups:
+#
+# - label: Server Settings
+#   parameters:
+#   - image
+#
+# - label: Web Server Settings
+#   parameters:
+#   - wp_master_server_flavor
+#   - wp_web_server_count
+#   - wp_web_server_flavor
+#
+# - label: Database Settings
+#   parameters:
+#   - database_server_flavor
+#
+# - label: WordPress Settings
+#   parameters:
+#   - domain
+#   - username
+#
+# - label: rax-dev-params
+#   # These are parameters that will not be displayed in the portal. The purpose
+#   # of these parameters are for users who are developing or testing newer or
+#   # different setups. If any of these parameters are changed, there is a good
+#   # chance this stack will fail to properly deploy.
+#   parameters:
+#   - kitchen
+#   - chef_version
+#   - child_template
+#   - version
+#   - prefix
+#   - load_balancer_hostname
+#   - wp_web_server_hostnames
+#   - wp_master_server_hostname
+#   - database_server_hostname
 
 parameters:
+
+  #network
+  isolated_network_name:
+    type: string
+    label: Public network name or ID
+    description: Public network with floating IP addresses.
+    default: isolated_network
+
+  isolated_network_cidr:
+    type: string
+    label: Network CIDR
+    description: The CIDR of the private network.
+    default: '10.0.0.0/24'
+
+  isolated_network_allocation_pool_start:
+    type: string
+    label: Network Allocation Pool Start
+    description: The begining address for the private net allocation pool
+    default: '10.0.0.4'
+
+  isolated_network_allocation_pool_end:
+    type: string
+    label: Network Allocation Pool END
+    description: The end address for the private net allocation pool
+    default: '10.0.0.254'
 
   # Server settings
   load_balancer_hostname:
@@ -295,9 +320,25 @@ parameters:
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
-    default: https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
+    default: https://raw.githubusercontent.com/jidar/wordpress-multi/master/wordpress-multi-server.yaml
 
 resources:
+
+  #Network
+  isolated_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: isolated_network_name }
+
+  isolated_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: isolated_network }
+      cidr: { get_param: isolated_network_cidr }
+      allocation_pools:
+        - start: { get_param: isolated_network_allocation_pool_start }
+          end: { get_param: isolated_network_allocation_pool_end }
+
   # Random password generation
   database_password:
     type: "OS::Heat::RandomString"
@@ -406,6 +447,9 @@ resources:
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_network }
+        - network: 11111111-1111-1111-1111-111111111111
 
   cloud_monitoring_config:
     type: OS::Heat::SoftwareConfig
@@ -441,6 +485,9 @@ resources:
         get_attr: [ cloud_monitoring_config, config ]
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_network }
+        - network: 11111111-1111-1111-1111-111111111111
 
   master_cpu_check:
     type: Rackspace::CloudMonitoring::Check
