@@ -307,7 +307,7 @@ parameters:
     description: |
       URL for the kitchen to use, fetched using git
     type: string
-    default: https://github.com/rackspace-orchestration-templates/wordpress-multi
+    default: https://github.com/jidar/wordpress-multi
 
   chef_version:
     label: Chef Version
@@ -447,9 +447,6 @@ resources:
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
-      networks:
-        - network: { get_resource: isolated_network }
-        - network: 11111111-1111-1111-1111-111111111111
 
   cloud_monitoring_config:
     type: OS::Heat::SoftwareConfig
@@ -485,9 +482,6 @@ resources:
         get_attr: [ cloud_monitoring_config, config ]
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
-      networks:
-        - network: { get_resource: isolated_network }
-        - network: 11111111-1111-1111-1111-111111111111
 
   master_cpu_check:
     type: Rackspace::CloudMonitoring::Check

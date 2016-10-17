@@ -193,9 +193,6 @@ resources:
       user_data: { get_param: agent_config }
       metadata:
         rax-heat: { get_param: parent_stack_id }
-      networks:
-        - network: { get_param: parent_private_net }
-        - network: 11111111-1111-1111-1111-111111111111
 
   node_cpu_check:
     type: Rackspace::CloudMonitoring::Check
