@@ -525,7 +525,9 @@ resources:
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
-    depends_on: database_server
+    depends_on:
+    - database_server
+    - isolated_network
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
@@ -559,6 +561,7 @@ resources:
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
           parent_private_net: { get_resource: isolated_network }
+          parent_private_net_name: { get_param: isolated_network_name }
 
   # Chef resources
   database_server_setup:
