@@ -174,12 +174,12 @@ parameters:
     type: string
     default: "none"
 
-  parent_private_net:
+  private_net_id:
     description: Private network provided by master template
     type: string
     default: "none"
 
-  parent_private_net_name:
+  private_net_name:
     description: Private network name provided by master template
     type: string
     default: "isolated_network"
@@ -199,7 +199,7 @@ resources:
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
-        - network: { get_param: parent_private_net }
+        - network: { get_param: private_net_id }
 
   node_cpu_check:
     type: Rackspace::CloudMonitoring::Check
@@ -247,7 +247,7 @@ resources:
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, { get_param: parent_private_net_name }] }
+      host: { get_attr: [wp_web_server, { get_param: private_net_name }] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -322,6 +322,12 @@ outputs:
 
 #  webserver_isolated_network_ip:
 #    value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net_name }, 0] }
+
+  private_net_uuid:
+    value: { get_param: private_net_id }
+
+  private_net_stringname:
+    value: { get_param: private_net_name }
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }

@@ -560,8 +560,8 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
-          parent_private_net: { get_resource: isolated_network }
-          parent_private_net_name: { get_param: isolated_network_name }
+          private_net_id: { get_resource: isolated_network }
+          private_net_name: { get_attr: [isolated_network, name] }
 
   # Chef resources
   database_server_setup:
