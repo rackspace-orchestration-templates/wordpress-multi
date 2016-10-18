@@ -161,7 +161,7 @@ parameters:
   kitchen:
     description: URL for the kitchen to use
     type: string
-    default: https://github.com/jidar/wordpress-multi
+    default: https://github.com/jidar/wordpress-multi/all_private_network
 
   chef_version:
     description: Version of chef client to use

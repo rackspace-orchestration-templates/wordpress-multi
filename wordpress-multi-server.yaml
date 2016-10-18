@@ -243,28 +243,6 @@ parameters:
     - allowed_values:
       - "4.3.1"
 
-  # Optional Apache settings (SSL certs)
-  # ssl_private_key:
-  #  description: Private SSL key
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Key values must be under 5,000 characters"
-
-  # ssl_certificate:
-  #  description: Public SSL key
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Certificate values must be under 5,000 characters"
-
-  #ssl_intermediate_certs:
-  #  description: Intermediate SSL Certificates
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Intermediate values must be under 5,000 characters."
-
   # Database and system user configuration
   prefix:
     label: Wordpress Prefix
@@ -307,7 +285,7 @@ parameters:
     description: |
       URL for the kitchen to use, fetched using git
     type: string
-    default: https://github.com/jidar/wordpress-multi
+    default: https://github.com/jidar/wordpress-multi/all_private_network
 
   chef_version:
     label: Chef Version
@@ -320,7 +298,7 @@ parameters:
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
-    default: https://raw.githubusercontent.com/jidar/wordpress-multi/master/wordpress-web-server.yaml
+    default: https://raw.githubusercontent.com/jidar/wordpress-multi/all_private_network/wordpress-web-server.yaml
 
 resources:
 
