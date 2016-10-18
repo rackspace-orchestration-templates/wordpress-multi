@@ -131,7 +131,7 @@ parameters:
     label: Web Server Count
     description: Number of web servers to deploy in addition to the web-master
     type: number
-    default: 1
+    default: 3
     constraints:
     - range:
         min: 0
@@ -558,6 +558,7 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
+          parent_private_net_name: { get_param: isolated_network_name }
           parent_private_net: { get_resource: isolated_network }
 
   # Chef resources
