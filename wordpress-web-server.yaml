@@ -320,7 +320,7 @@ outputs:
   private_net_stringname:
     value: { get_param: private_net_name }
 
-  isonet_ip:
+  isonet_ipv4:
     value: { get_attr: [wp_web_server, adresses, isolated_network, 0, addr] }
 
   accessIPv4:
