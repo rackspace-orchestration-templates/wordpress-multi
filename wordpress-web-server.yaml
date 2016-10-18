@@ -1,4 +1,4 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2016-04-08
 
 description: |
   This is a Heat template to deploy a single Linux server running a WordPress.
@@ -177,7 +177,6 @@ parameters:
   private_net_id:
     description: Private network provided by master template
     type: string
-    default: "none"
 
   private_net_name:
     description: Private network name provided by master template
@@ -199,7 +198,7 @@ resources:
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
-        - network: { get_param: private_net_id }
+        - network: { get_resource: private_net_id }
 
   node_cpu_check:
     type: Rackspace::CloudMonitoring::Check
