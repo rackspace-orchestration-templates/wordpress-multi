@@ -174,14 +174,24 @@ parameters:
     type: string
     default: "none"
 
+ #Networks
+  public_net_id:
+    description: Isolated network acting as the public access network
+    type: string
+
+  public_net_name:
+    description: public isonet name
+    type: string
+    default: "isolated_public_network"
+
   private_net_id:
-    description: Private network provided by master template
+    description: Isolated network acting as the private access network
     type: string
 
   private_net_name:
-    description: Private network name provided by master template
+    description: private isonet name
     type: string
-    default: "isolated_network"
+    default: "isolated_private_network"
 
 resources:
 
@@ -198,6 +208,7 @@ resources:
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
+        - network: { get_param: public_net_id }
         - network: { get_param: private_net_id }
 
   node_cpu_check:
@@ -246,7 +257,7 @@ resources:
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, accessIPv4] }
+      host: { get_attr: [wp_web_server, addresses, isolated_public_network, 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -314,11 +325,8 @@ resources:
 
 outputs:
 
-  isonet_ipv4:
-    value: { get_attr: [wp_web_server, addresses, isolated_network, 0] }
-
   accessIPv4:
-    value: { get_attr: [wp_web_server, accessIPv4] }
+    value: { get_attr: [wp_web_server, addresses, isolated_public_network, 0] }
 
   privateIPv4:
-    value: { get_attr: [wp_web_server, networks, private, 0] }
+    value: { get_attr: [wp_web_server, addresses, isolated_private_network, 0] }

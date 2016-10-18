@@ -50,29 +50,54 @@ description: |
 parameters:
 
   #network
-  isolated_network_name:
+  isolated_public_network_name:
     type: string
     label: Public network name or ID
     description: Public network with floating IP addresses.
-    default: isolated_network
+    default: isolated_public_network
 
-  isolated_network_cidr:
+  isolated_public_network_cidr:
     type: string
     label: Network CIDR
     description: The CIDR of the private network.
     default: '10.0.0.0/24'
 
-  isolated_network_allocation_pool_start:
+  isolated_public_network_allocation_pool_start:
     type: string
     label: Network Allocation Pool Start
     description: The begining address for the private net allocation pool
     default: '10.0.0.4'
 
-  isolated_network_allocation_pool_end:
+  isolated_public_network_allocation_pool_end:
     type: string
     label: Network Allocation Pool END
     description: The end address for the private net allocation pool
     default: '10.0.0.254'
+
+  #network
+  isolated_private_network_name:
+    type: string
+    label: Public network name or ID
+    description: Public network with floating IP addresses.
+    default: isolated_private_network
+
+  isolated_private_network_cidr:
+    type: string
+    label: Network CIDR
+    description: The CIDR of the private network.
+    default: '192.0.0.0/24'
+
+  isolated_private_network_allocation_pool_start:
+    type: string
+    label: Network Allocation Pool Start
+    description: The begining address for the private net allocation pool
+    default: '192.0.0.0'
+
+  isolated_private_network_allocation_pool_end:
+    type: string
+    label: Network Allocation Pool END
+    description: The end address for the private net allocation pool
+    default: '192.0.0.254'
 
   # Server settings
   load_balancer_hostname:
@@ -303,19 +328,33 @@ parameters:
 resources:
 
   #Network
-  isolated_network:
+  isolated_public_network:
     type: OS::Neutron::Net
     properties:
-      name: { get_param: isolated_network_name }
+      name: { get_param: isolated_public_network_name }
 
-  isolated_subnet:
+  isolated_public_subnet:
     type: OS::Neutron::Subnet
     properties:
-      network_id: { get_resource: isolated_network }
-      cidr: { get_param: isolated_network_cidr }
+      network_id: { get_resource: isolated_public_network }
+      cidr: { get_param: isolated_public_network_cidr }
       allocation_pools:
-        - start: { get_param: isolated_network_allocation_pool_start }
-          end: { get_param: isolated_network_allocation_pool_end }
+        - start: { get_param: isolated_public_network_allocation_pool_start }
+          end: { get_param: isolated_public_network_allocation_pool_end }
+
+  isolated_private_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: isolated_private_network_name }
+
+  isolated_private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: isolated_private_network }
+      cidr: { get_param: isolated_private_network_cidr }
+      allocation_pools:
+        - start: { get_param: isolated_private_network_allocation_pool_start }
+          end: { get_param: isolated_private_network_allocation_pool_end }
 
   # Random password generation
   database_password:
@@ -393,7 +432,7 @@ resources:
     properties:
       name: { get_param: load_balancer_hostname }
       nodes:
-      - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
+      - addresses: [ { get_attr: [wp_master_server, addresses, isolated_private_network, 0] } ]
         port: 80
         condition: ENABLED
       - addresses: { get_attr: [wp_web_servers, privateIPv4] }
@@ -425,6 +464,9 @@ resources:
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_public_network }
+        - network: { get_resource: isolated_private_network }
 
   cloud_monitoring_config:
     type: OS::Heat::SoftwareConfig
@@ -460,6 +502,9 @@ resources:
         get_attr: [ cloud_monitoring_config, config ]
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_public_network }
+        - network: { get_resource: isolated_private_network }
 
   master_cpu_check:
     type: Rackspace::CloudMonitoring::Check
@@ -521,11 +566,11 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: { get_attr: [wp_master_server, networks, private, 0] }
+          varnish_master_backend: { get_attr: [wp_master_server, addresses, isolated_private_network, 0] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: { get_attr: [database_server, networks, private, 0] }
-          memcached_host: { get_attr: [database_server, networks, private, 0] }
+          database_host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+          memcached_host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
@@ -538,8 +583,10 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
-          private_net_id: { get_resource: isolated_network }
-          private_net_name: { get_attr: [isolated_network, name] }
+          public_net_id: { get_resource: isolated_public_network }
+          public_net_name: { get_attr: [isolated_public_network, name] }
+          private_net_id: { get_resource: isolated_private_network }
+          private_net_name: { get_attr: [isolated_private_network, name] }
 
   # Chef resources
   database_server_setup:
@@ -548,7 +595,7 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, accessIPv4] }
+      host: { get_attr: [database_server, addresses, isolated_public_network, 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -561,9 +608,9 @@ resources:
               password: { get_attr: [mysql_root_password, value] }
         memcached:
           memory: 500
-          listen: { get_attr: [database_server, networks, private, 0] }
+          listen: { get_attr: [database_server, addresses, isolated_private_network, 0] }
         mysql:
-          bind_address: { get_attr: [database_server, networks, private, 0] }
+          bind_address: { get_attr: [database_server, addresses, isolated_private_network, 0] }
           server_root_password: { get_attr: [mysql_root_password, value] }
           server_repl_password: { get_attr: [mysql_repl_password, value] }
           server_debian_password: { get_attr: [mysql_debian_password, value] }
@@ -597,7 +644,7 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [wp_master_server, accessIPv4] }
+      host: { get_attr: [wp_master_server, addresses, isolated_public_network, 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -641,7 +688,7 @@ resources:
             name: { get_param: database_name }
             user: { get_param: username }
             pass: { get_attr: [database_password, value] }
-            host: { get_attr: [database_server, networks, private, 0] }
+            host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
           keys:
             auth: { get_attr: [wp_auth, value] }
             logged_in: { get_attr: [wp_logged_in, value] }
@@ -658,7 +705,7 @@ resources:
               private_key: { get_attr: [sync_key, private_key] }
             clients: { get_attr: [wp_web_servers, privateIPv4] }
           memcache:
-            server: { get_attr: [database_server, networks, private, 0] }
+            server: { get_attr: [database_server, addresses, isolated_private_network, 0] }
           varnish:
             master_backend: "localhost"
           packages:
@@ -701,14 +748,14 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, accessIPv4] }
+      host: { get_attr: [database_server, addresses, isolated_public_network, 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
         rax:
           memcached:
             clients:
-            - { get_attr: [wp_master_server, networks, private, 0] }
+            - { get_attr: [wp_master_server, addresses, isolated_private_network, 0] }
             - { get_attr: [wp_web_servers, privateIPv4] }
         run_list: ["recipe[rax-wordpress::memcached-firewall]"]
 
@@ -730,11 +777,12 @@ outputs:
     description: WordPress Password
 
   database_server_ip:
-    value: { get_attr: [database_server, accessIPv4] }
+    value: { get_attr: [database_server, addresses, isolated_public_network, 0] }
+
     description: Database Server IP
 
   wordpress_web_master_ip:
-    value: { get_attr: [wp_master_server, accessIPv4] }
+    value: { get_attr: [wp_master_server, addresses, isolated_public_network, 0] }
     description: Web-Master IP
 
   wordpress_web_ips:
