@@ -315,7 +315,7 @@ resources:
 outputs:
 
   isonet_ipv4:
-    value: {get_attr: [wp_web_server, addresses, isolated_network, 0]}”
+    value: { get_attr: [wp_web_server, addresses, isolated_network, 0]}
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
