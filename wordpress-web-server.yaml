@@ -174,11 +174,6 @@ parameters:
     type: string
     default: "none"
 
-  parent_private_net_name:
-    description: Private network name provided by master template
-    type: string
-    default: "none"
-
   parent_private_net:
     description: Private network provided by master template
     type: string
@@ -314,11 +309,11 @@ resources:
                    "recipe[rax-wordpress::lsyncd-client]"]
 
 outputs:
-  parent_private_net_get_param_direct_by_net_name_ip:
-    value: { get_attr: [wp_web_server, { get_param: parent_private_net }] }
-
-  parent_private_net_get_param_networks_drill_down_ip:
-    value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net }, 0] }
+  # parent_private_net_get_param_direct_by_net_name_ip:
+  #   value: { get_attr: [wp_web_server, { get_param: parent_private_net }] }
+  #
+  # parent_private_net_get_param_networks_drill_down_ip:
+  #   value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net }, 0] }
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
