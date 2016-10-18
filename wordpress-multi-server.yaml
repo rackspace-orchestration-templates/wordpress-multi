@@ -85,19 +85,19 @@ parameters:
     type: string
     label: Network CIDR
     description: The CIDR of the private network.
-    default: '192.0.0.0/24'
+    default: '192.168.0.0/24'
 
   isolated_private_network_allocation_pool_start:
     type: string
     label: Network Allocation Pool Start
     description: The begining address for the private net allocation pool
-    default: '192.0.0.0'
+    default: '192.168.0.0'
 
   isolated_private_network_allocation_pool_end:
     type: string
     label: Network Allocation Pool END
     description: The end address for the private net allocation pool
-    default: '192.0.0.254'
+    default: '192.168.0.254'
 
   # Server settings
   load_balancer_hostname:
@@ -550,7 +550,6 @@ resources:
     type: "OS::Heat::ResourceGroup"
     depends_on:
     - database_server
-    - isolated_network
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
