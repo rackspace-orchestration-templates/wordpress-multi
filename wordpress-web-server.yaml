@@ -314,14 +314,8 @@ resources:
 
 outputs:
 
-  private_net_uuid:
-    value: { get_param: private_net_id }
-
-  private_net_stringname:
-    value: { get_param: private_net_name }
-
   isonet_ipv4:
-    value: { get_attr: [wp_web_server, isolated_network] }
+    value: { get_attr: [wp_web_server, first_address] }
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
