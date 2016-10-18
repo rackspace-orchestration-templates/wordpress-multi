@@ -246,7 +246,7 @@ resources:
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, networks, public, 0] }
+      host: { get_attr: [wp_web_server, networks, , 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -319,6 +319,9 @@ outputs:
 
   private_net_stringname:
     value: { get_param: private_net_name }
+
+  isonet_ip:
+    value: { get_attr: [wp_web_server, adresses, isolated_network, 0, addr] }
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
