@@ -198,7 +198,7 @@ resources:
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
-        - network: { get_resource: private_net_id }
+        - network: { get_param: private_net_id }
 
   node_cpu_check:
     type: Rackspace::CloudMonitoring::Check
@@ -246,7 +246,7 @@ resources:
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, networks, isolated_network, 0] }
+      host: { get_attr: [wp_web_server, networks, public, 0] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
