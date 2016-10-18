@@ -247,7 +247,7 @@ resources:
     properties:
       username: root
       private_key: { get_param: ssh_private_key }
-      host: { get_attr: [wp_web_server, networks, { get_param: parent_private_net_name }, 0] }
+      host: { get_attr: [wp_web_server, { get_param: parent_private_net_name }] }
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -320,8 +320,8 @@ outputs:
   # parent_private_net_get_param_networks_drill_down_ip:
   #   value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net }, 0] }
 
-  webserver_isolated_network_ip:
-    value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net_name }, 0] }
+#  webserver_isolated_network_ip:
+#    value: { get_attr: [wp_web_server, networks, { get_param: parent_private_net_name }, 0] }
 
   accessIPv4:
     value: { get_attr: [wp_web_server, accessIPv4] }
