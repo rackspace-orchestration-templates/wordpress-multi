@@ -643,7 +643,7 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [wp_master_server, addresses, isolated_public_network, 0] }
+      host: "{ get_attr: [wp_master_server, addresses, isolated_public_network, 0] }"
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
@@ -687,7 +687,7 @@ resources:
             name: { get_param: database_name }
             user: { get_param: username }
             pass: { get_attr: [database_password, value] }
-            host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+            host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
           keys:
             auth: { get_attr: [wp_auth, value] }
             logged_in: { get_attr: [wp_logged_in, value] }
@@ -704,7 +704,7 @@ resources:
               private_key: { get_attr: [sync_key, private_key] }
             clients: { get_attr: [wp_web_servers, privateIPv4] }
           memcache:
-            server: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+            server: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
           varnish:
             master_backend: "localhost"
           packages:
@@ -747,7 +747,7 @@ resources:
     properties:
       username: root
       private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, addresses, isolated_public_network, 0] }
+      host: "{ get_attr: [database_server, addresses, isolated_public_network, 0] }"
       kitchen: { get_param: kitchen }
       chef_version: { get_param: chef_version }
       node:
