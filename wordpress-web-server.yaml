@@ -7,10 +7,10 @@ parameters:
 
   # Server settings
 
-  agent_config:
-    type: string
-    description: User data for installing and configuring monitoring agent
-    default: ""
+  # agent_config:
+  #   type: string
+  #   description: User data for installing and configuring monitoring agent
+  #   default: ""
 
   wp_web_server_hostname:
     description: WordPress Web Server Name
@@ -202,126 +202,126 @@ resources:
       flavor: { get_param: wp_web_server_flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
-      config_drive: true
-      user_data_format: RAW
-      user_data: { get_param: agent_config }
+      #config_drive: true
+      #user_data_format: RAW
+      #user_data: { get_param: agent_config }
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
         - network: { get_param: public_net_id }
         - network: { get_param: private_net_id }
 
-  node_cpu_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.cpu
-      label: node_cpu_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
+  # node_cpu_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_web_server }
+  #     type: agent.cpu
+  #     label: node_cpu_check
+  #     details: {}
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
+  #
+  # node_mem_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_web_server }
+  #     type: agent.memory
+  #     label: node_mem_check
+  #     details: {}
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
+  #
+  # node_filesystem_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_web_server }
+  #     type: agent.filesystem
+  #     label: node_fs_check
+  #     details:
+  #       target: "/"
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
 
-  node_mem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.memory
-      label: node_mem_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  node_filesystem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_web_server }
-      type: agent.filesystem
-      label: node_fs_check
-      details:
-        target: "/"
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  wp_web_server_setup:
-    type: "OS::Heat::ChefSolo"
-    depends_on: wp_web_server
-    properties:
-      username: root
-      private_key: { get_param: ssh_private_key }
-      host: "{ get_attr: [wp_web_server, addresses, isolated_public_network, 0] }"
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        apache:
-          listen_ports: [8080]
-          timeout: 30
-          serversignature: "Off"
-          traceenable: "Off"
-        varnish:
-          version: "3.0"
-          listen_port: "80"
-        wordpress:
-          version: { get_param: version }
-          server_aliases: [{ get_param: domain }]
-          dir:
-            str_replace:
-              template: "/var/www/vhosts/%domain%"
-              params:
-                "%domain%": { get_param: domain }
-          db:
-            name: { get_param: database_name }
-            user: { get_param: username }
-            pass: { get_param: database_password }
-            host: { get_param: database_host }
-          keys:
-            auth: { get_param: wp_auth }
-            logged_in: { get_param: wp_logged_in }
-            nonce_key: { get_param: wp_nonce }
-            secure_auth_key: { get_param: wp_secure_auth }
-        rax:
-          apache:
-            domain: { get_param: domain }
-            # ssl_private_key: { get_param: ssl_private_key }
-            # ssl_certificate: { get_param: ssl_certificate }
-            # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
-          lsyncd:
-            ssh:
-              pub: { get_param: lsync_pub }
-          memcache:
-            server: { get_param: memcached_host }
-          packages:
-            - php5-imagick
-          varnish:
-            master_backend: { get_param: varnish_master_backend }
-          wordpress:
-            admin_pass: { get_param: database_password }
-            user:
-              name: { get_param: username }
-              group: { get_param: username }
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]",
-                   "recipe[rax-wordpress::apache-prep]",
-                   "recipe[rax-wordpress::x509]",
-                   "recipe[php]",
-                   "recipe[rax-install-packages]",
-                   "recipe[wordpress]",
-                   "recipe[rax-wordpress::user]",
-                   "recipe[rax-wordpress::memcache]",
-                   "recipe[varnish::repo]",
-                   "recipe[varnish]",
-                   "recipe[rax-wordpress::apache]",
-                   "recipe[rax-wordpress::varnish]",
-                   "recipe[rax-wordpress::firewall]",
-                   "recipe[rax-wordpress::lsyncd-client]"]
+  # wp_web_server_setup:
+  #   type: "OS::Heat::ChefSolo"
+  #   depends_on: wp_web_server
+  #   properties:
+  #     username: root
+  #     private_key: { get_param: ssh_private_key }
+  #     host: "{ get_attr: [wp_web_server, addresses, isolated_public_network, 0] }"
+  #     kitchen: { get_param: kitchen }
+  #     chef_version: { get_param: chef_version }
+  #     node:
+  #       apache:
+  #         listen_ports: [8080]
+  #         timeout: 30
+  #         serversignature: "Off"
+  #         traceenable: "Off"
+  #       varnish:
+  #         version: "3.0"
+  #         listen_port: "80"
+  #       wordpress:
+  #         version: { get_param: version }
+  #         server_aliases: [{ get_param: domain }]
+  #         dir:
+  #           str_replace:
+  #             template: "/var/www/vhosts/%domain%"
+  #             params:
+  #               "%domain%": { get_param: domain }
+  #         db:
+  #           name: { get_param: database_name }
+  #           user: { get_param: username }
+  #           pass: { get_param: database_password }
+  #           host: { get_param: database_host }
+  #         keys:
+  #           auth: { get_param: wp_auth }
+  #           logged_in: { get_param: wp_logged_in }
+  #           nonce_key: { get_param: wp_nonce }
+  #           secure_auth_key: { get_param: wp_secure_auth }
+  #       rax:
+  #         apache:
+  #           domain: { get_param: domain }
+  #           # ssl_private_key: { get_param: ssl_private_key }
+  #           # ssl_certificate: { get_param: ssl_certificate }
+  #           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
+  #         lsyncd:
+  #           ssh:
+  #             pub: { get_param: lsync_pub }
+  #         memcache:
+  #           server: { get_param: memcached_host }
+  #         packages:
+  #           - php5-imagick
+  #         varnish:
+  #           master_backend: { get_param: varnish_master_backend }
+  #         wordpress:
+  #           admin_pass: { get_param: database_password }
+  #           user:
+  #             name: { get_param: username }
+  #             group: { get_param: username }
+  #       run_list: ["recipe[apt]",
+  #                  "recipe[build-essential]",
+  #                  "recipe[rax-wordpress::apache-prep]",
+  #                  "recipe[rax-wordpress::x509]",
+  #                  "recipe[php]",
+  #                  "recipe[rax-install-packages]",
+  #                  "recipe[wordpress]",
+  #                  "recipe[rax-wordpress::user]",
+  #                  "recipe[rax-wordpress::memcache]",
+  #                  "recipe[varnish::repo]",
+  #                  "recipe[varnish]",
+  #                  "recipe[rax-wordpress::apache]",
+  #                  "recipe[rax-wordpress::varnish]",
+  #                  "recipe[rax-wordpress::firewall]",
+  #                  "recipe[rax-wordpress::lsyncd-client]"]
 
 outputs:
 
@@ -330,3 +330,4 @@ outputs:
 
   privateIPv4:
     value: { get_attr: [wp_web_server, addresses, isolated_private_network, 0] }
+#    value: { get_attr: [wp_web_server, addresses, isolated_private_network, 0, addr] }
