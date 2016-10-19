@@ -301,7 +301,7 @@ resources:
           packages:
             - php5-imagick
           varnish:
-            master_backend: "{ get_param: varnish_master_backend }"
+            master_backend: { get_param: varnish_master_backend }
           wordpress:
             admin_pass: { get_param: database_password }
             user:

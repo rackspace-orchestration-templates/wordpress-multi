@@ -565,7 +565,7 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: { get_attr: [wp_master_server, addresses, isolated_private_network, 0] }
+          varnish_master_backend: "{ get_attr: [wp_master_server, addresses, isolated_private_network, 0] }"
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
           database_host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
