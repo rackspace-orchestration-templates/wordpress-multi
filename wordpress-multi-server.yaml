@@ -60,19 +60,19 @@ parameters:
     type: string
     label: Network CIDR
     description: The CIDR of the private network.
-    default: '10.0.0.0/24'
+    default: '192.168.0.0/24'
 
   isolated_public_network_allocation_pool_start:
     type: string
     label: Network Allocation Pool Start
     description: The begining address for the private net allocation pool
-    default: '10.0.0.4'
+    default: '192.168.0.0'
 
   isolated_public_network_allocation_pool_end:
     type: string
     label: Network Allocation Pool END
     description: The end address for the private net allocation pool
-    default: '10.0.0.254'
+    default: '192.168.0.254'
 
   #network
   isolated_private_network_name:
@@ -85,19 +85,19 @@ parameters:
     type: string
     label: Network CIDR
     description: The CIDR of the private network.
-    default: '192.168.0.0/24'
+    default: '10.0.0.0/24'
 
   isolated_private_network_allocation_pool_start:
     type: string
     label: Network Allocation Pool Start
     description: The begining address for the private net allocation pool
-    default: '192.168.0.0'
+    default: '10.0.0.4'
 
   isolated_private_network_allocation_pool_end:
     type: string
     label: Network Allocation Pool END
     description: The end address for the private net allocation pool
-    default: '192.168.0.254'
+    default: '10.0.0.254'
 
   # Server settings
   load_balancer_hostname:
