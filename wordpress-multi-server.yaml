@@ -568,8 +568,8 @@ resources:
           varnish_master_backend: { get_attr: [wp_master_server, addresses, isolated_private_network, 0] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
-          memcached_host: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+          database_host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
+          memcached_host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
