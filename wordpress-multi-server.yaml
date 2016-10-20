@@ -156,7 +156,7 @@ parameters:
     label: Web Server Count
     description: Number of web servers to deploy in addition to the web-master
     type: number
-    default: 3
+    default: 2
     constraints:
     - range:
         min: 0
@@ -418,7 +418,7 @@ resources:
     properties:
       name: { get_param: load_balancer_hostname }
       nodes:
-      - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
+      - addresses: [ { get_attr: [wp_master_server, addresses, private, 0, addr] } ]
         port: 80
         condition: ENABLED
       - addresses: [ { get_attr: [wp_web_servers, privateIPv4] } ]
@@ -552,11 +552,11 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: { get_attr: [wp_master_server, networks, private, 0] }
+          varnish_master_backend: { get_attr: [wp_master_server, addresses, private, 0, addr] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: { get_attr: [database_server, networks, private, 0] }
-          memcached_host: { get_attr: [database_server, networks, private, 0] }
+          database_host: { get_attr: [database_server, addresses, private, 0, addr] }
+          memcached_host: { get_attr: [database_server, addresses, private, 0, addr] }
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
@@ -765,11 +765,11 @@ outputs:
     description: WordPress Password
 
   database_server_ip:
-    value: { get_attr: [database_server, networks, public, 0] }
+    value: { get_attr: [database_server, accessIPv4] }
     description: Database Server IP
 
   wordpress_web_master_ip:
-    value: { get_attr: [wp_master_server, networks, public, 0] }
+    value: { get_attr: [wp_master_server, accessIPv4] }
     description: Web-Master IP
 
   wordpress_web_ips:

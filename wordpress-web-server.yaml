@@ -318,10 +318,10 @@ resources:
 outputs:
 
   accessIPv4:
-    value: { get_attr: [wp_web_server, networks, public, 0] }
+    value: { get_attr: [wp_web_server, accessIPv4] }
 
   privateIPv4:
-    value: { get_attr: [wp_web_server, networks, private, 0] }
+    value: { get_attr: [wp_web_server, addresses, private, 0, addr] }
 
   isolated_network_ip:
     value: { get_attr: [wp_web_server, addresses, { get_param: private_net_name }, 0, addr] }
