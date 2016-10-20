@@ -175,15 +175,6 @@ parameters:
     default: "none"
 
  #Networks
-  public_net_id:
-    description: Isolated network acting as the public access network
-    type: string
-
-  public_net_name:
-    description: public isonet name
-    type: string
-    default: "isolated_public_network"
-
   private_net_id:
     description: Isolated network acting as the private access network
     type: string
@@ -208,8 +199,9 @@ resources:
       metadata:
         rax-heat: { get_param: parent_stack_id }
       networks:
-        - network: { get_param: public_net_id }
         - network: { get_param: private_net_id }
+        - network: 00000000-0000-0000-0000-000000000000
+        - network: 11111111-1111-1111-1111-111111111111
 
   # node_cpu_check:
   #   type: Rackspace::CloudMonitoring::Check
@@ -326,8 +318,10 @@ resources:
 outputs:
 
   accessIPv4:
-    value: { get_attr: [wp_web_server, addresses, isolated_public_network, 0] }
+    value: { get_attr: [wp_web_server, networks, public, 0] }
 
   privateIPv4:
-    value: { get_attr: [wp_web_server, addresses, isolated_private_network, 0] }
-#    value: { get_attr: [wp_web_server, addresses, isolated_private_network, 0, addr] }
+    value: { get_attr: [wp_web_server, networks, private, 0] }
+
+  isolated_network_ip:
+    value: { get_attr: [wp_web_server, addresses, { get_param: private_net_name }, 0, addr] }

@@ -328,20 +328,6 @@ parameters:
 resources:
 
   #Network
-  isolated_public_network:
-    type: OS::Neutron::Net
-    properties:
-      name: { get_param: isolated_public_network_name }
-
-  isolated_public_subnet:
-    type: OS::Neutron::Subnet
-    properties:
-      network_id: { get_resource: isolated_public_network }
-      cidr: { get_param: isolated_public_network_cidr }
-      allocation_pools:
-        - start: { get_param: isolated_public_network_allocation_pool_start }
-          end: { get_param: isolated_public_network_allocation_pool_end }
-
   isolated_private_network:
     type: OS::Neutron::Net
     properties:
@@ -427,16 +413,16 @@ resources:
   load_balancer:
     type: "Rackspace::Cloud::LoadBalancer"
     depends_on:
-#    - wp_master_server_setup
+    #- wp_master_server_setup
     - wp_web_servers
     properties:
       name: { get_param: load_balancer_hostname }
       nodes:
-      - addresses: [ { get_attr: [wp_master_server, addresses, isolated_private_network, 0] } ]
+      - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
         port: 80
         condition: ENABLED
-#      - addresses: { get_attr: [wp_web_servers, privateIPv4] }
-#        port: 80
+      - addresses: [ { get_attr: [wp_web_servers, privateIPv4] } ]
+        port: 80
         condition: ENABLED
       healthMonitor:
         type: HTTP
@@ -465,9 +451,9 @@ resources:
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
       networks:
-        - network: { get_resource: isolated_public_network }
         - network: { get_resource: isolated_private_network }
         - network: 00000000-0000-0000-0000-000000000000
+        - network: 11111111-1111-1111-1111-111111111111
 
   # cloud_monitoring_config:
   #   type: OS::Heat::SoftwareConfig
@@ -504,9 +490,9 @@ resources:
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
       networks:
-        - network: { get_resource: isolated_public_network }
         - network: { get_resource: isolated_private_network }
         - network: 00000000-0000-0000-0000-000000000000
+        - network: 11111111-1111-1111-1111-111111111111
 
   # master_cpu_check:
   #   type: Rackspace::CloudMonitoring::Check
@@ -550,8 +536,7 @@ resources:
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
-    depends_on:
-    - database_server
+    depends_on: database_server
     properties:
       count: { get_param: wp_web_server_count }
       resource_def:
@@ -567,11 +552,11 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: "{ get_attr: [wp_master_server, addresses, isolated_private_network, 0] }"
+          varnish_master_backend: { get_attr: [wp_master_server, networks, private, 0] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
-          memcached_host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
+          database_host: { get_attr: [database_server, networks, private, 0] }
+          memcached_host: { get_attr: [database_server, networks, private, 0] }
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
@@ -584,8 +569,6 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
-          public_net_id: { get_resource: isolated_public_network }
-          public_net_name: { get_attr: [isolated_public_network, name] }
           private_net_id: { get_resource: isolated_private_network }
           private_net_name: { get_attr: [isolated_private_network, name] }
 
@@ -782,16 +765,19 @@ outputs:
     description: WordPress Password
 
   database_server_ip:
-    value: { get_attr: [database_server, addresses, isolated_public_network, 0] }
-
+    value: { get_attr: [database_server, networks, public, 0] }
     description: Database Server IP
 
   wordpress_web_master_ip:
-    value: { get_attr: [wp_master_server, addresses, isolated_public_network, 0] }
+    value: { get_attr: [wp_master_server, networks, public, 0] }
     description: Web-Master IP
 
   wordpress_web_ips:
     value: { get_attr: [wp_web_servers, accessIPv4] }
+    description: Web Server IPs
+
+  wordpress_web_isolated_net_ips:
+    value: { get_attr: [wp_web_servers, isolated_network_ip] }
     description: Web Server IPs
 
   mysql_root_password:
