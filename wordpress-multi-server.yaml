@@ -421,7 +421,7 @@ resources:
       - addresses: [ { get_attr: [wp_master_server, addresses, private, 0, addr] } ]
         port: 80
         condition: ENABLED
-      - addresses: [ { get_attr: [wp_web_servers, privateIPv4] } ]
+      - addresses: { get_attr: [wp_web_servers, privateIPv4] }
         port: 80
         condition: ENABLED
       healthMonitor:
