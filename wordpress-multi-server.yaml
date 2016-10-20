@@ -10,44 +10,94 @@ description: |
   The database will be hosted on a Linux server with
   [MySQL 5.5](http://www.mysql.com/about/).
 
-parameter_groups:
-
-- label: Server Settings
-  parameters:
-  - image
-
-- label: Web Server Settings
-  parameters:
-  - wp_master_server_flavor
-  - wp_web_server_count
-  - wp_web_server_flavor
-
-- label: Database Settings
-  parameters:
-  - database_server_flavor
-
-- label: WordPress Settings
-  parameters:
-  - domain
-  - username
-
-- label: rax-dev-params
-  # These are parameters that will not be displayed in the portal. The purpose
-  # of these parameters are for users who are developing or testing newer or
-  # different setups. If any of these parameters are changed, there is a good
-  # chance this stack will fail to properly deploy.
-  parameters:
-  - kitchen
-  - chef_version
-  - child_template
-  - version
-  - prefix
-  - load_balancer_hostname
-  - wp_web_server_hostnames
-  - wp_master_server_hostname
-  - database_server_hostname
+# parameter_groups:
+#
+# - label: Server Settings
+#   parameters:
+#   - image
+#
+# - label: Web Server Settings
+#   parameters:
+#   - wp_master_server_flavor
+#   - wp_web_server_count
+#   - wp_web_server_flavor
+#
+# - label: Database Settings
+#   parameters:
+#   - database_server_flavor
+#
+# - label: WordPress Settings
+#   parameters:
+#   - domain
+#   - username
+#
+# - label: rax-dev-params
+#   # These are parameters that will not be displayed in the portal. The purpose
+#   # of these parameters are for users who are developing or testing newer or
+#   # different setups. If any of these parameters are changed, there is a good
+#   # chance this stack will fail to properly deploy.
+#   parameters:
+#   - kitchen
+#   - chef_version
+#   - child_template
+#   - version
+#   - prefix
+#   - load_balancer_hostname
+#   - wp_web_server_hostnames
+#   - wp_master_server_hostname
+#   - database_server_hostname
 
 parameters:
+
+  #network
+  isolated_public_network_name:
+    type: string
+    label: Public network name or ID
+    description: Public network with floating IP addresses.
+    default: isolated_public_network
+
+  isolated_public_network_cidr:
+    type: string
+    label: Network CIDR
+    description: The CIDR of the private network.
+    default: '192.168.0.0/24'
+
+  isolated_public_network_allocation_pool_start:
+    type: string
+    label: Network Allocation Pool Start
+    description: The begining address for the private net allocation pool
+    default: '192.168.0.0'
+
+  isolated_public_network_allocation_pool_end:
+    type: string
+    label: Network Allocation Pool END
+    description: The end address for the private net allocation pool
+    default: '192.168.0.254'
+
+  #network
+  isolated_private_network_name:
+    type: string
+    label: Public network name or ID
+    description: Public network with floating IP addresses.
+    default: isolated_private_network
+
+  isolated_private_network_cidr:
+    type: string
+    label: Network CIDR
+    description: The CIDR of the private network.
+    default: '10.0.0.0/24'
+
+  isolated_private_network_allocation_pool_start:
+    type: string
+    label: Network Allocation Pool Start
+    description: The begining address for the private net allocation pool
+    default: '10.0.0.4'
+
+  isolated_private_network_allocation_pool_end:
+    type: string
+    label: Network Allocation Pool END
+    description: The end address for the private net allocation pool
+    default: '10.0.0.254'
 
   # Server settings
   load_balancer_hostname:
@@ -106,7 +156,7 @@ parameters:
     label: Web Server Count
     description: Number of web servers to deploy in addition to the web-master
     type: number
-    default: 1
+    default: 2
     constraints:
     - range:
         min: 0
@@ -218,28 +268,6 @@ parameters:
     - allowed_values:
       - "4.3.1"
 
-  # Optional Apache settings (SSL certs)
-  # ssl_private_key:
-  #  description: Private SSL key
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Key values must be under 5,000 characters"
-
-  # ssl_certificate:
-  #  description: Public SSL key
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Certificate values must be under 5,000 characters"
-
-  #ssl_intermediate_certs:
-  #  description: Intermediate SSL Certificates
-  #  type: string
-  #  constraints:
-  #  - allowed_pattern: "^(.){0,5000}$"
-  #    description: "Intermediate values must be under 5,000 characters."
-
   # Database and system user configuration
   prefix:
     label: Wordpress Prefix
@@ -282,7 +310,7 @@ parameters:
     description: |
       URL for the kitchen to use, fetched using git
     type: string
-    default: https://github.com/rackspace-orchestration-templates/wordpress-multi
+    default: https://github.com/jidar/wordpress-multi
 
   chef_version:
     label: Chef Version
@@ -295,9 +323,25 @@ parameters:
     description: |
       Location of the child template to use for the WordPress web servers
     type: string
-    default: https://raw.githubusercontent.com/rackspace-orchestration-templates/wordpress-multi/master/wordpress-web-server.yaml
+    default: https://raw.githubusercontent.com/jidar/wordpress-multi/master/wordpress-web-server.yaml
 
 resources:
+
+  #Network
+  isolated_private_network:
+    type: OS::Neutron::Net
+    properties:
+      name: { get_param: isolated_private_network_name }
+
+  isolated_private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: isolated_private_network }
+      cidr: { get_param: isolated_private_network_cidr }
+      allocation_pools:
+        - start: { get_param: isolated_private_network_allocation_pool_start }
+          end: { get_param: isolated_private_network_allocation_pool_end }
+
   # Random password generation
   database_password:
     type: "OS::Heat::RandomString"
@@ -369,12 +413,12 @@ resources:
   load_balancer:
     type: "Rackspace::Cloud::LoadBalancer"
     depends_on:
-    - wp_master_server_setup
+    #- wp_master_server_setup
     - wp_web_servers
     properties:
       name: { get_param: load_balancer_hostname }
       nodes:
-      - addresses: [ { get_attr: [wp_master_server, networks, private, 0] } ]
+      - addresses: [ { get_attr: [wp_master_server, addresses, private, 0, addr] } ]
         port: 80
         condition: ENABLED
       - addresses: { get_attr: [wp_web_servers, privateIPv4] }
@@ -406,27 +450,31 @@ resources:
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_private_network }
+        - network: 00000000-0000-0000-0000-000000000000
+        - network: 11111111-1111-1111-1111-111111111111
 
-  cloud_monitoring_config:
-    type: OS::Heat::SoftwareConfig
-    properties:
-      config:
-        str_replace:
-          template: |
-            #!/bin/bash
-            wget http://meta.packages.cloudmonitoring.rackspace.com/ubuntu-12.04-x86_64/rackspace-cloud-monitoring-meta-stable_1.0_all.deb
-            dpkg -i rackspace-cloud-monitoring-meta-stable_1.0_all.deb
-            apt-get update
-            apt-get install rackspace-monitoring-agent
-            echo "monitoring_token {{token}}" > /etc/rackspace-monitoring-agent.cfg
-            service rackspace-monitoring-agent restart
-          params:
-            "{{token}}": { get_resource: agent_token }
+  # cloud_monitoring_config:
+  #   type: OS::Heat::SoftwareConfig
+  #   properties:
+  #     config:
+  #       str_replace:
+  #         template: |
+  #           #!/bin/bash
+  #           wget http://meta.packages.cloudmonitoring.rackspace.com/ubuntu-12.04-x86_64/rackspace-cloud-monitoring-meta-stable_1.0_all.deb
+  #           dpkg -i rackspace-cloud-monitoring-meta-stable_1.0_all.deb
+  #           apt-get update
+  #           apt-get install rackspace-monitoring-agent
+  #           echo "monitoring_token {{token}}" > /etc/rackspace-monitoring-agent.cfg
+  #           service rackspace-monitoring-agent restart
+  #         params:
+  #           "{{token}}": { get_resource: agent_token }
 
-  agent_token:
-    type: Rackspace::CloudMonitoring::AgentToken
-    properties:
-      label: { get_param: "OS::stack_name" }
+  # agent_token:
+  #   type: Rackspace::CloudMonitoring::AgentToken
+  #   properties:
+  #     label: { get_param: "OS::stack_name" }
 
   wp_master_server:
     type: "OS::Nova::Server"
@@ -435,52 +483,56 @@ resources:
       flavor: { get_param: wp_master_server_flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
-      config_drive: true
-      user_data_format: RAW
-      user_data:
-        get_attr: [ cloud_monitoring_config, config ]
+#      config_drive: true
+#      user_data_format: RAW
+#      user_data:
+#        get_attr: [ cloud_monitoring_config, config ]
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      networks:
+        - network: { get_resource: isolated_private_network }
+        - network: 00000000-0000-0000-0000-000000000000
+        - network: 11111111-1111-1111-1111-111111111111
 
-  master_cpu_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_master_server }
-      type: agent.cpu
-      label: master_cpu_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  master_mem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_master_server }
-      type: agent.memory
-      label: master_mem_check
-      details: {}
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
-
-  master_filesystem_check:
-    type: Rackspace::CloudMonitoring::Check
-    properties:
-      entity: { get_resource: wp_master_server }
-      type: agent.filesystem
-      label: master_fs_check
-      details:
-        target: "/"
-      metadata:
-        rax-heat: { get_param: "OS::stack_id" }
-        stack-name: { get_param: "OS::stack_name" }
-      period: 30
-      timeout: 10
+  # master_cpu_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_master_server }
+  #     type: agent.cpu
+  #     label: master_cpu_check
+  #     details: {}
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
+  #
+  # master_mem_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_master_server }
+  #     type: agent.memory
+  #     label: master_mem_check
+  #     details: {}
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
+  #
+  # master_filesystem_check:
+  #   type: Rackspace::CloudMonitoring::Check
+  #   properties:
+  #     entity: { get_resource: wp_master_server }
+  #     type: agent.filesystem
+  #     label: master_fs_check
+  #     details:
+  #       target: "/"
+  #     metadata:
+  #       rax-heat: { get_param: "OS::stack_id" }
+  #       stack-name: { get_param: "OS::stack_name" }
+  #     period: 30
+  #     timeout: 10
 
   wp_web_servers:
     type: "OS::Heat::ResourceGroup"
@@ -490,7 +542,7 @@ resources:
       resource_def:
         type: { get_param: child_template }
         properties:
-          agent_config: { get_attr: [ cloud_monitoring_config, config ] }
+          #agent_config: { get_attr: [ cloud_monitoring_config, config ] }
           wp_web_server_hostname: { get_param: wp_web_server_hostnames }
           image: { get_param: image }
           wp_web_server_flavor: { get_param: wp_web_server_flavor }
@@ -500,11 +552,11 @@ resources:
           # ssl_certificate: { get_param: ssl_certificate }
           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
           lsync_pub: { get_attr: [sync_key, public_key]}
-          varnish_master_backend: { get_attr: [wp_master_server, networks, private, 0] }
+          varnish_master_backend: { get_attr: [wp_master_server, addresses, private, 0, addr] }
           prefix: { get_param: prefix }
           database_name: { get_param: database_name }
-          database_host: { get_attr: [database_server, networks, private, 0] }
-          memcached_host: { get_attr: [database_server, networks, private, 0] }
+          database_host: { get_attr: [database_server, addresses, private, 0, addr] }
+          memcached_host: { get_attr: [database_server, addresses, private, 0, addr] }
           username: { get_param: username }
           database_password: { get_attr: [database_password, value] }
           wp_auth: { get_attr: [wp_auth, value] }
@@ -517,182 +569,188 @@ resources:
           kitchen: { get_param: kitchen }
           chef_version: { get_param: chef_version }
           parent_stack_id: { get_param: "OS::stack_id" }
+          private_net_id: { get_resource: isolated_private_network }
+          private_net_name: { get_attr: [isolated_private_network, name] }
 
   # Chef resources
-  database_server_setup:
-    type: "OS::Heat::ChefSolo"
-    depends_on: database_server
-    properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        hollandbackup:
-          main:
-            backup_directory: "/var/lib/mysqlbackup"
-            mysqldump:
-              user: "root"
-              host: "localhost"
-              password: { get_attr: [mysql_root_password, value] }
-        memcached:
-          memory: 500
-          listen: { get_attr: [database_server, networks, private, 0] }
-        mysql:
-          bind_address: { get_attr: [database_server, networks, private, 0] }
-          server_root_password: { get_attr: [mysql_root_password, value] }
-          server_repl_password: { get_attr: [mysql_repl_password, value] }
-          server_debian_password: { get_attr: [mysql_debian_password, value] }
-          remove_test_database: true
-          remove_anonymous_users: true
-          root_network_acl: [ "10.%" ]
-        rax:
-          firewall:
-            tcp: [22]
-          mysql:
-            innodb_buffer_pool_mempercent: 0.6
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]",
-                   "recipe[rax-firewall]",
-                   "recipe[mysql::server]",
-                   "recipe[rax-wordpress::memcached-firewall]",
-                   "recipe[memcached]",
-                   "recipe[rax-wordpress::mysql]",
-                   "recipe[rax-wordpress::mysql-firewall]",
-                   "recipe[hollandbackup]",
-                   "recipe[hollandbackup::mysqldump]",
-                   "recipe[hollandbackup::main]",
-                   "recipe[hollandbackup::backupsets]",
-                   "recipe[hollandbackup::cron]"]
+  # database_server_setup:
+  #   type: "OS::Heat::ChefSolo"
+  #   depends_on: database_server
+  #   properties:
+  #     username: root
+  #     private_key: { get_attr: [ssh_key, private_key] }
+  #     host: "{ get_attr: [database_server, addresses, isolated_public_network, 0] }"
+  #     kitchen: { get_param: kitchen }
+  #     chef_version: { get_param: chef_version }
+  #     node:
+  #       hollandbackup:
+  #         main:
+  #           backup_directory: "/var/lib/mysqlbackup"
+  #           mysqldump:
+  #             user: "root"
+  #             host: "localhost"
+  #             password: { get_attr: [mysql_root_password, value] }
+  #       memcached:
+  #         memory: 500
+  #         listen: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+  #       mysql:
+  #         bind_address: { get_attr: [database_server, addresses, isolated_private_network, 0] }
+  #         server_root_password: { get_attr: [mysql_root_password, value] }
+  #         server_repl_password: { get_attr: [mysql_repl_password, value] }
+  #         server_debian_password: { get_attr: [mysql_debian_password, value] }
+  #         remove_test_database: true
+  #         remove_anonymous_users: true
+  #         root_network_acl: [ "10.%" ]
+  #       rax:
+  #         firewall:
+  #           tcp: [22]
+  #         mysql:
+  #           innodb_buffer_pool_mempercent: 0.6
+  #       run_list: ["recipe[apt]",
+  #                  "recipe[build-essential]",
+  #                  "recipe[rax-firewall]",
+  #                  "recipe[mysql::server]",
+  #                  "recipe[rax-wordpress::memcached-firewall]",
+  #                  "recipe[memcached]",
+  #                  "recipe[rax-wordpress::mysql]",
+  #                  "recipe[rax-wordpress::mysql-firewall]",
+  #                  "recipe[hollandbackup]",
+  #                  "recipe[hollandbackup::mysqldump]",
+  #                  "recipe[hollandbackup::main]",
+  #                  "recipe[hollandbackup::backupsets]",
+  #                  "recipe[hollandbackup::cron]"]
 
-  wp_master_server_setup:
-    type: "OS::Heat::ChefSolo"
-    depends_on:
-    - database_server_setup
-    - wp_web_servers
-    properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [wp_master_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        apache:
-          listen_ports: [8080]
-          timeout: 30
-          serversignature: "Off"
-          traceenable: "Off"
-        lsyncd:
-          interval: 5
-        monit:
-          notify_email: 'root@localhost'
-          mail_format:
-            from: 'monit@localhost'
-        mysql:
-          bind_address: { get_attr: [mysql_root_password, value] }
-          server_root_password: { get_attr: [mysql_root_password, value] }
-        sysctl:
-          values:
-            fs.inotify.max_user_watches: 1000000
-        varnish:
-          version: "3.0"
-          listen_port: "80"
-        vsftpd:
-          ipaddress: ''
-          write_enable: true
-          local_umask: "002"
-          chroot_local_user: false
-          hide_ids: false
-          ssl_enable: true
-          ssl_ciphers: "AES256-SHA"
-        wordpress:
-          version: { get_param: version }
-          server_aliases: [{ get_param: domain }]
-          dir:
-            str_replace:
-              template: "/var/www/vhosts/%domain%"
-              params:
-                "%domain%": { get_param: domain }
-          db:
-            name: { get_param: database_name }
-            user: { get_param: username }
-            pass: { get_attr: [database_password, value] }
-            host: { get_attr: [database_server, networks, private, 0] }
-          keys:
-            auth: { get_attr: [wp_auth, value] }
-            logged_in: { get_attr: [wp_logged_in, value] }
-            nonce_key: { get_attr: [wp_nonce, value] }
-            secure_auth_key: { get_attr: [wp_secure_auth, value] }
-        rax:
-          apache:
-            domain: { get_param: domain }
-            # ssl_private_key: { get_param: ssl_private_key }
-            # ssl_certificate: { get_param: ssl_certificate }
-            # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
-          lsyncd:
-            ssh:
-              private_key: { get_attr: [sync_key, private_key] }
-            clients: { get_attr: [wp_web_servers, privateIPv4] }
-          memcache:
-            server: { get_attr: [database_server, networks, private, 0] }
-          varnish:
-            master_backend: "localhost"
-          packages:
-            - php5-imagick
-          wordpress:
-            admin_user: { get_param: username }
-            admin_pass: { get_attr: [database_password, value] }
-            user:
-              name: { get_param: username }
-              group: { get_param: username }
-        run_list: ["recipe[apt]",
-                   "recipe[build-essential]",
-                   "recipe[mysql::client]",
-                   "recipe[mysql-chef_gem]",
-                   "recipe[rax-wordpress::apache-prep]",
-                   "recipe[sysctl::attribute_driver]",
-                   "recipe[rax-wordpress::x509]",
-                   "recipe[php]",
-                   "recipe[rax-install-packages]",
-                   "recipe[rax-wordpress::wp-database]",
-                   "recipe[wordpress]",
-                   "recipe[rax-wordpress::wp-setup]",
-                   "recipe[rax-wordpress::user]",
-                   "recipe[rax-wordpress::memcache]",
-                   "recipe[lsyncd]",
-                   "recipe[vsftpd]",
-                   "recipe[rax-wordpress::vsftpd]",
-                   "recipe[varnish::repo]",
-                   "recipe[varnish]",
-                   "recipe[rax-wordpress::apache]",
-                   "recipe[rax-wordpress::varnish]",
-                   "recipe[rax-wordpress::varnish-firewall]",
-                   "recipe[rax-wordpress::firewall]",
-                   "recipe[rax-wordpress::vsftpd-firewall]",
-                   "recipe[rax-wordpress::lsyncd]"]
+  # wp_master_server_setup:
+  #   type: "OS::Heat::ChefSolo"
+  #   depends_on:
+  #   - database_server_setup
+  #   - wp_web_servers
+  #   properties:
+  #     username: root
+  #     private_key: { get_attr: [ssh_key, private_key] }
+  #     host: "{ get_attr: [wp_master_server, addresses, isolated_public_network, 0] }"
+  #     kitchen: { get_param: kitchen }
+  #     chef_version: { get_param: chef_version }
+  #     node:
+  #       apache:
+  #         listen_ports: [8080]
+  #         timeout: 30
+  #         serversignature: "Off"
+  #         traceenable: "Off"
+  #       lsyncd:
+  #         interval: 5
+  #       monit:
+  #         notify_email: 'root@localhost'
+  #         mail_format:
+  #           from: 'monit@localhost'
+  #       mysql:
+  #         bind_address: { get_attr: [mysql_root_password, value] }
+  #         server_root_password: { get_attr: [mysql_root_password, value] }
+  #       sysctl:
+  #         values:
+  #           fs.inotify.max_user_watches: 1000000
+  #       varnish:
+  #         version: "3.0"
+  #         listen_port: "80"
+  #       vsftpd:
+  #         ipaddress: ''
+  #         write_enable: true
+  #         local_umask: "002"
+  #         chroot_local_user: false
+  #         hide_ids: false
+  #         ssl_enable: true
+  #         ssl_ciphers: "AES256-SHA"
+  #       wordpress:
+  #         version: { get_param: version }
+  #         server_aliases: [{ get_param: domain }]
+  #         dir:
+  #           str_replace:
+  #             template: "/var/www/vhosts/%domain%"
+  #             params:
+  #               "%domain%": { get_param: domain }
+  #         db:
+  #           name: { get_param: database_name }
+  #           user: { get_param: username }
+  #           pass: { get_attr: [database_password, value] }
+  #           host: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
+  #         keys:
+  #           auth: { get_attr: [wp_auth, value] }
+  #           logged_in: { get_attr: [wp_logged_in, value] }
+  #           nonce_key: { get_attr: [wp_nonce, value] }
+  #           secure_auth_key: { get_attr: [wp_secure_auth, value] }
+  #       rax:
+  #         apache:
+  #           domain: { get_param: domain }
+  #           # ssl_private_key: { get_param: ssl_private_key }
+  #           # ssl_certificate: { get_param: ssl_certificate }
+  #           # ssl_intermediate_certs: { get_param: ssl_intermediate_certs }
+  #         lsyncd:
+  #           ssh:
+  #             private_key: { get_attr: [sync_key, private_key] }
+  #           clients: { get_attr: [wp_web_servers, privateIPv4] }
+  #         memcache:
+  #           server: "{ get_attr: [database_server, addresses, isolated_private_network, 0] }"
+  #         varnish:
+  #           master_backend: "localhost"
+  #         packages:
+  #           - php5-imagick
+  #         wordpress:
+  #           admin_user: { get_param: username }
+  #           admin_pass: { get_attr: [database_password, value] }
+  #           user:
+  #             name: { get_param: username }
+  #             group: { get_param: username }
+  #       run_list: ["recipe[apt]",
+  #                  "recipe[build-essential]",
+  #                  "recipe[mysql::client]",
+  #                  "recipe[mysql-chef_gem]",
+  #                  "recipe[rax-wordpress::apache-prep]",
+  #                  "recipe[sysctl::attribute_driver]",
+  #                  "recipe[rax-wordpress::x509]",
+  #                  "recipe[php]",
+  #                  "recipe[rax-install-packages]",
+  #                  "recipe[rax-wordpress::wp-database]",
+  #                  "recipe[wordpress]",
+  #                  "recipe[rax-wordpress::wp-setup]",
+  #                  "recipe[rax-wordpress::user]",
+  #                  "recipe[rax-wordpress::memcache]",
+  #                  "recipe[lsyncd]",
+  #                  "recipe[vsftpd]",
+  #                  "recipe[rax-wordpress::vsftpd]",
+  #                  "recipe[varnish::repo]",
+  #                  "recipe[varnish]",
+  #                  "recipe[rax-wordpress::apache]",
+  #                  "recipe[rax-wordpress::varnish]",
+  #                  "recipe[rax-wordpress::varnish-firewall]",
+  #                  "recipe[rax-wordpress::firewall]",
+  #                  "recipe[rax-wordpress::vsftpd-firewall]",
+  #                  "recipe[rax-wordpress::lsyncd]"]
 
-  database_server_firewall:
-    type: "OS::Heat::ChefSolo"
-    depends_on: wp_master_server_setup
-    properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [database_server, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        rax:
-          memcached:
-            clients:
-            - { get_attr: [wp_master_server, networks, private, 0] }
-            - { get_attr: [wp_web_servers, privateIPv4] }
-        run_list: ["recipe[rax-wordpress::memcached-firewall]"]
+  # database_server_firewall:
+  #   type: "OS::Heat::ChefSolo"
+  #   depends_on: wp_master_server_setup
+  #   properties:
+  #     username: root
+  #     private_key: { get_attr: [ssh_key, private_key] }
+  #     host: "{ get_attr: [database_server, addresses, isolated_public_network, 0] }"
+  #     kitchen: { get_param: kitchen }
+  #     chef_version: { get_param: chef_version }
+  #     node:
+  #       rax:
+  #         memcached:
+  #           clients:
+  #           - { get_attr: [wp_master_server, addresses, isolated_private_network, 0] }
+  #           - { get_attr: [wp_web_servers, privateIPv4] }
+  #       run_list: ["recipe[rax-wordpress::memcached-firewall]"]
 
 outputs:
   private_key:
     value: { get_attr: [ssh_key, private_key] }
     description: SSH Private IP
+
+  public_key:
+    value: { get_attr: [ssh_key, public_key] }
+    description: SSH Public IP
 
   load_balancer_ip:
     value: { get_attr: [load_balancer, PublicIp] }
@@ -716,6 +774,10 @@ outputs:
 
   wordpress_web_ips:
     value: { get_attr: [wp_web_servers, accessIPv4] }
+    description: Web Server IPs
+
+  wordpress_web_isolated_net_ips:
+    value: { get_attr: [wp_web_servers, isolated_network_ip] }
     description: Web Server IPs
 
   mysql_root_password:
